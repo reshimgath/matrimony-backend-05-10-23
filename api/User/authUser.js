@@ -3,14 +3,14 @@ const router = express.Router();
 const otpGenerator = require('otp-generator')
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
-const UserModel = require("../Models/User");
-const OTP = require("../Models/OTP");
-const User = require("../Models/User");
-const mailSender = require("../Functions/mailsender");
-const Authorizaton = require("../Middlewears/authrization");
+const UserModel = require("../../Models/User");
+const OTP = require("../../Models/OTP");
+const User = require("../../Models/User");
+const mailSender = require("../../Functions/mailsender");
+const Authorizaton = require("../../Middlewears/authrization");
 const bcrypt = require("bcryptjs");
-const getDatatoken = require("../Functions/getDatatoken");
-const getAccesstoken = require("../Functions/getaccessToken");
+const getDatatoken = require("../../Functions/getDatatoken");
+const getAccesstoken = require("../../Functions/getaccessToken");
 
 
 //route to register a user
@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
         Myotp.save().then(() => {
             //send mail
             mailSender(email, otp, firstname).then(async () => {
-                res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed), message: "otp sent succesfulyy" })
+                res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins), message: "otp sent succesfulyy" })
             }).catch((err) => {
                 res.send({ status: 400, message: "error while sendng the mail.." })
             });
@@ -55,7 +55,7 @@ router.post('/login', (req, res) => {
             //compare the hashed passwrod and input password
             bcrypt.compare(password, val1.secure_password).then(async (correct) => {
                 if (correct) {
-                    res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed) })
+                    res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
                 }
                 else {
                     res.status(401).send("incorrect password")
@@ -81,7 +81,7 @@ router.post('/updateprofile', (req, res) => {
 })
 
 //*********verify the otp sent to mobile********
-router.post('/verifyotp',Authorizaton, (req, res) => {
+router.post('/verifyotp', Authorizaton, (req, res) => {
     const { otp } = req.body
     //find if otp exist in gien database*********
     OTP.findOne({ email: req.email }).then((val) => {
@@ -102,10 +102,9 @@ router.post('/verifyotp',Authorizaton, (req, res) => {
                         $set: {
                             verified: true,
                             profile_completed: 20
-                        }
-                    }).then(() => {
-                        res.status(200).send("hello otp is valid succesfully redirecting to ..")
-
+                        },
+                    }, { new: true }).then(async (val1) => {
+                        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
                     }).catch(() => {
                         res.status(400).send("errror in mongodb")
                     })
@@ -128,7 +127,7 @@ router.post('/verifyotp',Authorizaton, (req, res) => {
 })
 
 //resend otp route
-router.post("/resendotp",Authorizaton, (req, res) => {
+router.post("/resendotp", Authorizaton, (req, res) => {
     //const { email, firstname } = req.body
     OTP.findOne({ email: req.email }).then((val) => {
         if (val != null) {

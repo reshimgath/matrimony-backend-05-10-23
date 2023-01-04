@@ -39,5 +39,13 @@ let usermodel = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    rechargeDate: {
+        type: Date,
+        default: 0
+    },
+    rechargExpireDate: {
+        type: Date,
+        default: 0
+    }
 })
 module.exports = mongoose.model("user", usermodel)
