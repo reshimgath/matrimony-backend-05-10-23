@@ -3,14 +3,29 @@ const router = express.Router();
 const otpGenerator = require('otp-generator')
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
+const bcrypt = require("bcryptjs");
+
+//Scheama models
 const UserModel = require("../../Models/User");
 const OTP = require("../../Models/OTP");
-const User = require("../../Models/User");
+const DeleteOtpModel = require("../../Models/DeleteOtp")
+const Deleted = require("../../Models/Deleted");
+
+//functions that sends emails to user
 const mailSender = require("../../Functions/mailsender");
-const Authorizaton = require("../../Middlewears/authrization");
-const bcrypt = require("bcryptjs");
+const deleteConfirm = require("../../Functions/deleteConfirm");
+const rechargeConfirm = require("../../Functions/rechargeConfirm");
+
+//functions that create jwt tokens
 const getDatatoken = require("../../Functions/getDatatoken");
 const getAccesstoken = require("../../Functions/getaccessToken");
+
+//middlewears 
+const Authorizaton = require("../../Middlewears/authrization");
+
+
+
+
 
 
 //route to register a user
@@ -70,14 +85,79 @@ router.post('/login', (req, res) => {
     })
 
 })
+//sendDeletePreviewMale to user
+router.post("/senddeletepreviewemale", (req, res) => {
+    const { email, firstname } = req.body
+    //otp generator
+    const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    //create DeleteOtp 
+    const Deleteotp = new DeleteOtpModel({
+        otp,
+        email, createdAt: Date.now(), expireAt: Date.now() + 180000
+    })
+
+    Deleteotp.save().then(() => {
+        //send verifivation mail ro user
+        deleteConfirm(email, otp, firstname).then(() => {
+            res.status(200).send("email sent succesfully..")
+        }).catch((err) => {
+            res.status(400).send("sorry error while sending the mail..")
+        })
+        // res.status(200).send("ok")
+    }).catch(() => {
+        res.status(400).send("sorry errror in mongodb..")
+    })
+
+})
+
 
 //delete user for normal user
-router.post('/deleteprofile', (req, res) => {
-    res.status(200).send("profile deleted succesfulyy..")
+router.post('/deleteprofile', async (req, res) => {
+    const { id, email, gender, mobile, reason, otp } = req.body
+    try {
+        const otpdata = await DeleteOtpModel.findOne({ email })
+        if (otpdata) {
+            //cheack otp expired or not
+            if (otpdata.expireAt > Date.now()) {
+                if (otpdata.otp === otp) {
+                    const deleted = new Deleted({
+                        mobile, email, gender, reason
+                    })
+                    //save the deleted informataion
+                    deleted.save().then(() => {
+                        //delete the info from database
+                        UserModel.findByIdAndDelete(id).then(() => {
+                            res.status(200).send("deleted succesfully..")
+                        }).catch(() => {
+                            res.status(400).send("sorrry errror while deleting profile")
+                        })
+                    }).catch(() => {
+                        res.status(400).send("sorrry errro in mongodb ")
+                    })
+                }
+                else {
+                    res.status(400).send("please fill correct otp")
+                }
+
+            }
+            else {
+                res.status(400).send("sorrry errror in mongodb..")
+            }
+        }
+        else {
+            res.status(400).send("sorrry bad request")
+        }
+    }
+    catch (e) {
+        res.status(400), send("sorry some errro occured please try again later..")
+    }
+
+
 })
+
 //update profile for normal user
 router.post('/updateprofile', (req, res) => {
-    res.status(200).send("profile updated succesfulyy..")
+    res.status(200).send("profile updated succesfulyy....")
 })
 
 //*********verify the otp sent to mobile********
@@ -192,6 +272,57 @@ router.post("/resendotp", Authorizaton, (req, res) => {
 router.get('/samplecheack', Authorizaton, (req, res) => {
     res.status(200).send(req.user)
 })
+
+//access the user profile contact details
+//1:full name
+//2:adress 
+//3.phone number
+//4.email adress
+router.post("/getuserprofiledetails", async (req, res) => {
+    const { profileid, email } = req.body;
+    try {
+        //find user who requesting for profile
+        const data = await UserModel.findOne({ email })
+        if (data) {
+            //cheack wheather recharge expired or not
+            if (data.rechargExpireDate > Date.now()) {
+                if (data.coins < 0) {
+                    res.status(200).send("sorrry you don't have enough coins ")
+                }
+                else {
+                    try {
+                        //get the actual profile which need to share back to user
+                        const profiledata = await UserModel.findOne({ _id: profileid })
+                        if (profiledata) {
+
+                            //decrease coins by 5
+                            UserModel.updateOne({ email }, {
+                                $set: {
+                                    coins: data.coins - 5
+                                }
+                            }).then(() => {
+                                res.status(200).send(profiledata)
+                            })
+                        }
+                        else {
+                            res.status(400).send("sorry profile not found....")
+                        }
+                    }
+                    catch (e) {
+                        res.status(400).send("errro in mongodb")
+                    }
+                }
+            }
+            else {
+                res.status(400).send("sorrry your recharge expired please contact owner")
+            }
+        }
+    }
+    catch (e) {
+        res.status(400).send("errro in mongodb")
+    }
+})
+
 
 module.exports = router
 

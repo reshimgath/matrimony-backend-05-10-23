@@ -4,6 +4,10 @@ const adminScheama = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    canrecharge: {
+        type: Boolean,
+        default: false
+    },
     email: {
         type: String,
         unique: true,
@@ -11,7 +15,8 @@ const adminScheama = new mongoose.Schema({
 
     },
     password: {
-        type: String
+        type: String,
+        require: true
     }
 
 })

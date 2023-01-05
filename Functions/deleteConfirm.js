@@ -1,18 +1,18 @@
 const nodemailer = require("nodemailer");
 
-async function rechargeConfirm(email, plan, firstname, coins) {
-  let transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    auth: {
-      user: "reshimgathvivah@gmail.com",
-      pass: "xdicchueyeaoounh",
-    },
-  });
-  let info = await transporter.sendMail({
-    to: email,
-    html: `  <div style="font-family: Helvetica,Arial,sans-serif;overflow:auto;line-height:2;">
+async function deleteConfirm(email, otp, firstname) {
+    let transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        auth: {
+            user: "reshimgathvivah@gmail.com",
+            pass: "xdicchueyeaoounh",
+        },
+    });
+    let info = await transporter.sendMail({
+        to: email,
+        html: `  <div style="font-family: Helvetica,Arial,sans-serif;overflow:auto;line-height:2;">
         <div style="margin:50px auto;width:70%;padding:20px 0">
           <div style="border-bottom:1px solid #e12e56">
             <a href="" style="font-size:1.4em;color: #e12e56;text-decoration:none;font-weight:600">Reshimgath</a>
@@ -41,8 +41,8 @@ async function rechargeConfirm(email, plan, firstname, coins) {
       </div>
       </div>
       </div>`,
-    subject: `Reshimgath One Time Password`,
-  });
+        subject: `Reshimgath Delete Password`,
+    });
 }
 
-module.exports = rechargeConfirm
+module.exports = deleteConfirm

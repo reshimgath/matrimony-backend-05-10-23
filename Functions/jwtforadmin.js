@@ -1,14 +1,13 @@
 require("dotenv").config()
 const jwt = require("jsonwebtoken")
-const getDatatoken = (firstname, email, mobile, gender, verified, profile_completed, coins) => {
+const getadminaccesstoken = (email, root) => {
     return new Promise((resolve, reject) => {
         const token = jwt.sign({
-            firstname, email, mobile, gender, verified, profile_completed
+            email, root
         }, process.env.secreate_jwt)
         resolve(
             token
         )
     })
 }
-
-module.exports = getDatatoken
+module.exports = getadminaccesstoken
