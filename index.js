@@ -33,9 +33,6 @@ app.get("/", (req, res) => {
 app.use('/auth', authUser)
 app.use('/admincrud', admincrud)
 
-
-
-
 app.listen(port, () => {
     console.log("app listening on port " + port)
 })

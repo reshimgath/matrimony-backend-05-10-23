@@ -5,7 +5,7 @@ const Authorizaton = (req, res, next) => {
     if (token) {
         try {
             const decoded = jwt.verify(token, process.env.secreate_jwt)
-            //console.log(decoded)
+           
             req.email = decoded.email
             req.firstname = decoded.firstname
             next()

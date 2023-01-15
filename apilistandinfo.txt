@@ -1,0 +1,49 @@
+//api token for state,country city data
+MGZMRlZLbkZ0SmNiOGkxQzBlREFLYjBKdlZZU1BnRmlRbGI3N2lvVg==
+***normal user***
+1)api : auth/register
+ api for register user
+
+2)api : auth/login
+api for login user and get access and data token
+
+3)api : auth/deleteprofile (private user)
+any user can delete theire profile with valid reason
+
+4)api :auth/verifyotp (private user)
+api to verify otp entered by user
+
+5)api:auth/resendotp (private user)
+api to resend otp if otp expired
+
+6)api :auth/getuserprofiledetails (private user)
+api to get user contact details if recharge not expired and have valid coins
+
+
+****admin apis***
+1)api :admincrud/createadmin (private admin )
+api to create new admin only root admin can create new admin 
+
+2)api :admincrud/deleteadmin (private admin)
+api to delete admin  
+
+3)api :admincrud/loginadmin
+api to login admin 
+
+4)api :admincrud/getspecificuser (private admin)
+search filter api for admin panel
+
+5)api :admincrud/deletespecificuser (private admin)
+admin can delete any profile
+
+6)api :admincrud/rechargeuser (private admin)
+admin can recharge any user (two admins)
+
+7)api :admincrud/getexpiredusers
+get expired users from database
+
+8)success stories(full crud)
+/addstories
+/getstories
+/updatestories
+/deletestory
