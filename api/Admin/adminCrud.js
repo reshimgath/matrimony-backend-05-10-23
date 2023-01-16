@@ -138,7 +138,6 @@ router.post("/rechargeuser", async (req, res) => {
         }).then(() => {
             res.status(200).send("recharge succsessfull...thanks... !")
         }).catch(() => {
-
             res.status(400).send("sorry errro while recharging....")
         })
     }).catch(() => {
