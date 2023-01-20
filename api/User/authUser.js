@@ -323,6 +323,26 @@ router.post("/getuserprofiledetails", async (req, res) => {
     }
 })
 
+//api for normal search
+router.post("/normalsearch", async (req, res) => {
+    // lookingFor
+    // fromAge
+    // toAge
+    // maritalStatus
+    // Religion
+    //{ $or: [{ email: email }, { firstname: name }] }
+    const { lookingFor, fromAge, toAge, maritalStatus, Religion } = req.body
+
+    try {
+        const result = await UserModel.find()
+        // res.send(result)
+        res.status(200).send(result)
+    }
+    catch (e) {
+        res.status(400).send('sorry errror found..')
+    }
+})
+
 
 module.exports = router
 
