@@ -1,5 +1,6 @@
 //api token for state,country city data
 MGZMRlZLbkZ0SmNiOGkxQzBlREFLYjBKdlZZU1BnRmlRbGI3N2lvVg==
+
 ***normal user***
 1)api : auth/register
  api for register user
@@ -26,7 +27,7 @@ api to create new admin only root admin can create new admin
 
 2)api :admincrud/deleteadmin (private admin)
 api to delete admin  
-
+ 
 3)api :admincrud/loginadmin
 api to login admin 
 

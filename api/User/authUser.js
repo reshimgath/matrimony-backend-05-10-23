@@ -332,10 +332,9 @@ router.post("/normalsearch", async (req, res) => {
     // Religion
     //{ $or: [{ email: email }, { firstname: name }] }
     const { lookingFor, fromAge, toAge, maritalStatus, Religion } = req.body
-
     try {
+        //{ Religion, maritalStatus, gender: lookingFor, age: { $gt: fromAge, $lt: toAge } }
         const result = await UserModel.find()
-        // res.send(result)
         res.status(200).send(result)
     }
     catch (e) {
