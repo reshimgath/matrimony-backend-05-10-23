@@ -17,9 +17,14 @@ api to verify otp entered by user
 5)api:auth/resendotp (private user)
 api to resend otp if otp expired
 
-6)api :auth/getuserprofiledetails (private user)
+6)api :auth/getusercontactdetails (private user)
 api to get user contact details if recharge not expired and have valid coins
 
+7)api :auth/forgotpassword(private route)
+api which is used to generate new password 
+
+8)api :auth/resetpassword (private route)
+api which resets the password if use wants
 
 ****admin apis***
 1)api :admincrud/createadmin (private admin )
@@ -48,3 +53,6 @@ get expired users from database
 /getstories
 /updatestories
 /deletestory
+
+9)Main admin can create profile without any authentication
+

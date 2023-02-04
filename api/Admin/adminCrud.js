@@ -11,6 +11,7 @@ const adminAuthorizaton = require("../../Middlewears/cheackrootadmin");
 const cheackNormaladmin = require("../../Middlewears/cheackNormaladmin")
 const cheackRecharge = require("../../Middlewears/cheackRecharge");
 const Stories = require("../../Models/Stories");
+const Queries = require("../../Models/Queries");
 //const getAccesstoken = require("../../Functions/getaccessToken");
 //const getDatatoken = require("../../Functions/getDatatoken");
 
@@ -158,10 +159,10 @@ router.get("/getexpiredusers", (req, res) => {
     })
 
 })
+
 //Create:success story
 router.post("/addstories", async (req, res) => {
     const { image, date, men, women } = req.body;
-    //url.split(":")[0]
     try {
         const responseCloud = await cloudinary.uploader.upload(image)
         const myStory = new Stories({
@@ -245,6 +246,28 @@ router.post("/deletestory", (req, res) => {
         }
     }).catch(() => {
         res.status(400).send("sorrry some error found in mongodb")
+    })
+})
+
+//get customer queries 
+router.post("/getqueries", (req, res) => {
+    const { name, email, contact, message } = req.body;
+    const newQuery = Queries({
+        name, email, contact, message
+    })
+    newQuery.save().then(() => [
+        res.status(200).send("query added succesfully..")
+    ]).catch(() => {
+        res.status(400).send("sorry query not added...")
+    })
+
+})
+//send customer queries back
+router.get('/customerqueries', (req, res) => {
+    Queries.find().then((val) => {
+        res.status(200).send(val)
+    }).catch(() => {
+        res.status(400).send("sorry error in mongodb..")
     })
 })
 

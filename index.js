@@ -21,7 +21,6 @@ app.use(bodyParser.json())
 //connect to mongodb
 mongoose.set('strictQuery', true);
 mongoose.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }).then((res) => {
-
 }).catch((err) => {
 })
 

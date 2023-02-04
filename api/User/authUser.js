@@ -4,7 +4,7 @@ const otpGenerator = require('otp-generator')
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs");
-
+const generator = require('generate-password');
 //Scheama models
 const UserModel = require("../../Models/User");
 const OTP = require("../../Models/OTP");
@@ -15,6 +15,7 @@ const Deleted = require("../../Models/Deleted");
 const mailSender = require("../../Functions/mailsender");
 const deleteConfirm = require("../../Functions/deleteConfirm");
 const rechargeConfirm = require("../../Functions/rechargeConfirm");
+const forgotpassword = require("../../Functions/forgotpassword")
 
 //functions that create jwt tokens
 const getDatatoken = require("../../Functions/getDatatoken");
@@ -269,16 +270,72 @@ router.post("/resendotp", Authorizaton, (req, res) => {
 
 })
 
+
+//forgot password route for user
+router.post('/forgotpassword', async (req, res) => {
+    const { email } = req.body;
+    const password = generator.generate({
+        length: 10,
+        numbers: true
+    });
+
+    //generate secure hashed password
+    const salt = await bcrypt.genSalt(10);
+    const secpass = await bcrypt.hash(password, salt);
+    UserModel.findByIdAndUpdate({ email }, {
+        $set: {
+            secure_password: secpass
+        }
+    }).then(() => {
+        forgotpassword(email).then("new password sent succesfully....").catch((err) => {
+            res.status(400).send("sorry error while sending mail....")
+        })
+    }).catch(() => {
+        res.status(400).send("internal server error......")
+    })
+
+})
+
+//api to reset password 
+router.post('/resetpassword', Authorizaton, async (req, res) => {
+    const { password } = req.body;
+    //generate secure hashed password
+    const salt = await bcrypt.genSalt(10);
+    const secpass = await bcrypt.hash(password, salt);
+    UserModel.findOneAndUpdate({ email: req.email }, {
+        $set: {
+            secure_password: secpass
+        }
+    }).then(() => {
+        res.status(200).send("password updated succesfully.....")
+    }).catch(() => {
+        res.status(400).send("password not updated try again later...")
+    })
+})
+
+
 router.get('/samplecheack', Authorizaton, (req, res) => {
     res.status(200).send(req.user)
 })
+
+//get all details of user except sirname,email,mobile
+router.post('/getalluserdetails',Authorizaton, (req, res) => {
+    const { id } = req.body;
+    //get user profile details
+    UserModel.findById(id).then((val) => {
+        res.status(200).send(val)
+    }).catch(() => {
+        res.status(400).send("sorry errror in mongodb...")
+    })
+})
+
 
 //access the user profile contact details
 //1:full name
 //2:adress 
 //3.phone number
 //4.email adress
-router.post("/getuserprofiledetails", async (req, res) => {
+router.post("/getusercontactdetails", async (req, res) => {
     const { profileid, email } = req.body;
     try {
         //find user who requesting for profile
@@ -292,7 +349,7 @@ router.post("/getuserprofiledetails", async (req, res) => {
                 else {
                     try {
                         //get the actual profile which need to share back to user
-                        const profiledata = await UserModel.findOne({ _id: profileid })
+                        const profiledata = await UserModel.findOne({ _id: profileid }, { email: 1, mobile: 1, lastname: 1 })
                         if (profiledata) {
 
                             //decrease coins by 5
@@ -341,6 +398,100 @@ router.post("/normalsearch", async (req, res) => {
         res.status(400).send('sorry errror found..')
     }
 })
+
+//**************getting remaing details from user***********
+//1.gettting basic info
+router.post('/getbasicinfo', Authorizaton, (req, res) => {
+    const {
+        height,
+        weight,
+        bloodGroup,
+        education,
+        occupation,
+        salaryPA,
+        dob,
+        birth_time,
+        birth_place,
+        caste,
+        subCaste,
+        complexion,
+        disablity,
+        maritalStatus,
+        childrens_count,
+        addressLine2,
+        country_name,
+        state_name,
+        city_name,
+        taluka,
+        district } = req.body;
+
+    //update only necossory fields in database    
+    User.updateOne({ email: req.email }, {
+        $set: {
+            profile_completed: 50,
+            height,
+            weight,
+            bloodGroup,
+            education,
+            occupation,
+            salaryPA,
+            dob,
+            birth_time,
+            birth_place,
+            caste,
+            subCaste,
+            complexion,
+            disablity,
+            maritalStatus,
+            childrens_count,
+            addressLine2,
+            country_name,
+            state_name,
+            city_name,
+            taluka,
+            district
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+
+    })
+})
+
+//2.Family details 
+router.post("/getfamilydetails", (req, res) => {
+    const {
+        fathers_name,
+        fathers_occupation,
+        mothers_name,
+        mothers_occupation,
+        bother_select,
+        bother_status,
+        sister_select,
+        sister_status,
+        vehicle } = req.body;
+
+    //update only necossory fields in database    
+    User.updateOne({ email: req.email }, {
+        $set: {
+            fathers_name,
+            fathers_occupation,
+            mothers_name,
+            mothers_occupation,
+            bother_select,
+            bother_status,
+            sister_select,
+            sister_status,
+            vehicle
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+
+});
 
 
 module.exports = router
