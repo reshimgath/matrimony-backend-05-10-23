@@ -6,8 +6,12 @@ async function mailSender(email, otp, firstname) {
     host: "smtp.gmail.com",
     port: 465,
     auth: {
+      // user: "muchmarklbh@gmail.com",
+      // pass: "dzlmziluuzxgrhyl"
       user: "reshimgathvivah@gmail.com",
-      pass: "xdicchueyeaoounh",
+      // pass: "Boss@123"
+      // pass: "xdicchueyeaoounh",
+      pass: "fwzayylmysxporlx"
     },
   });
   let info = await transporter.sendMail({

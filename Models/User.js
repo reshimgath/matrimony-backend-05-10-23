@@ -47,71 +47,91 @@ let usermodel = new mongoose.Schema({
     rechargExpireDate: {
         type: Date,
         default: 0
-
     },
     //*************basic info start***********
     height: {
-        type: String
+        type: String,
+        default: ""
     },
     weight: {
-        type: String
+        type: String,
+        default: ""
     },
     bloodGroup: {
-        type: String
+        type: String,
+        default: ""
     },
     education: {
-        type: String
+        type: String,
+        default: ""
     },
     occupation: {
-        type: String
+        type: String,
+        default: ""
     },
     salaryPA: {
-        type: String
+        type: String,
+        default: ""
     },
     dob: {
-        type: String
+        type: String,
+        default: ""
     },
     birth_time: {
-        type: String
+        type: String,
+        default: ""
     },
     birth_place: {
-        type: String
+        type: String,
+        default: ""
     },
     caste: {
-        type: String
+        type: String,
+        default: ""
     },
     subCaste: {
-        type: String
+        type: String,
+        default: ""
     },
     complexion: {
-        type: String
+        type: String,
+        default: ""
     },
     disablity: {
-        type: String
+        type: String,
+        default: ""
     },
     maritalStatus: {
-        type: String
+        type: String,
+        default: ""
     },
     childrens_count: {
-        type: String
+        type: String,
+        default: ""
     },
     addressLine2: {
-        type: String
+        type: String,
+        default: ""
     },
     country_name: {
-        type: String
+        type: String,
+        default: ""
     },
     state_name: {
-        type: String
+        type: String,
+        default: ""
     },
     city_name: {
-        type: String
+        type: String,
+        default: ""
     },
     taluka: {
-        type: String
+        type: String,
+        default: ""
     },
     district: {
-        type: String
+        type: String,
+        default: ""
     },
     //****get family details***
     fathers_name: {
@@ -172,6 +192,7 @@ let usermodel = new mongoose.Schema({
         type: String
     }
     
+
 
 })
 module.exports = mongoose.model("user", usermodel)

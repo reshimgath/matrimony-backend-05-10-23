@@ -264,6 +264,7 @@ router.post("/getqueries", (req, res) => {
 })
 //send customer queries back
 router.get('/customerqueries', (req, res) => {
+
     Queries.find().then((val) => {
         res.status(200).send(val)
     }).catch(() => {
