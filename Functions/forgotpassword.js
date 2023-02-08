@@ -1,30 +1,25 @@
 const nodemailer = require("nodemailer");
 
-async function mailSender(email, otp, firstname) {
-  let transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    auth: {
-      // user: "muchmarklbh@gmail.com",
-      // pass: "dzlmziluuzxgrhyl"
-      user: "reshimgathvivah@gmail.com",
-      // pass: "Boss@123"
-      // pass: "xdicchueyeaoounh",
-      pass: "fwzayylmysxporlx"
-    },
-  });
-  let info = await transporter.sendMail({
-    to: email,
-    html: `<div style="font-family: Helvetica,Arial,sans-serif;overflow:auto;line-height:2;">
+async function forgotpassword(email) {
+    let transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        auth: {
+            user: "reshimgathvivah@gmail.com",
+            pass: "xdicchueyeaoounh",
+        },
+    });
+    let info = await transporter.sendMail({
+        to: email,
+        html: `<div style="font-family: Helvetica,Arial,sans-serif;overflow:auto;line-height:2;">
         <div style="margin:50px auto;width:70%;padding:20px 0">
           <div style="border-bottom:1px solid #e12e56">
             <a href="" style="font-size:1.4em;color: #e12e56;text-decoration:none;font-weight:600">Reshimgath</a>
           </div>
           <p style="font-size:1.1em">Hi ${firstname},</p>
-      <p>Congratulations! You are just one step away from getting your desired
-      life partner.</p>
-      
+          <p>Congratulations! You are just one step away from getting your desired
+          life partner.</p>
           <p>Thank you for Registration. Use the following OTP to complete your Sign Up procedures. OTP is valid for 3 minutes.do not share with anyone.</p>
           <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${otp}</h2>
           <p style="font-size:0.9em;">Regards,<br />Team Reshimgath</p>
@@ -45,8 +40,8 @@ async function mailSender(email, otp, firstname) {
       </div>
       </div>
       </div>`,
-    subject: `Reshimgath One Time Password`,
-  });
+        subject: `Reshimgath One Time Password`,
+    });
 }
 
-module.exports = mailSender
+module.exports = forgotpassword

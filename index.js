@@ -37,7 +37,6 @@ const admincrud = require("./api/Admin/adminCrud")
 //connect to mongodb
 mongoose.set('strictQuery', true);
 mongoose.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }).then((res) => {
-
 }).catch((err) => {
 })
 
