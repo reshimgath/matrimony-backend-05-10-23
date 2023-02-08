@@ -271,4 +271,138 @@ router.get('/customerqueries', (req, res) => {
     })
 })
 
+//********* normal admin can create users without email verification */
+//1.get register informaton
+//route to register a user
+router.post('/register', async (req, res) => {
+    const { firstname, email, mobile, password, lastname, gender } = req.body
+
+    //generate secure hashed password
+    const salt = await bcrypt.genSalt(10)
+    const secpass = await bcrypt.hash(password, salt)
+
+    //otp generator
+    const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+
+    //create user instance
+    UserModel.create({
+        firstname, email, mobile, secure_password: secpass, lastname, gender, verified: true,
+        profile_completed: 20
+    }).then((val1) => {
+        res.status(200).send("registartion details submited succesfully..")
+    }).catch(() => {
+        res.status(400).send("sorry useralready exist..")
+    })
+
+})
+
+//2.gettting basic info
+router.post('/getbasicinfo', (req, res) => {
+    console.log(req.body)
+    res.send("ok")
+    // const { email,
+    //     height,
+    //     weight,
+    //     bloodGroup,
+    //     education,
+    //     occupation,
+    //     salaryPA,
+    //     dob,
+    //     birth_time,
+    //     birth_place,
+    //     caste,
+    //     subCaste,
+    //     complexion,
+    //     disablity,
+    //     maritalStatus,
+    //     childrens_count,
+    //     addressLine2,
+    //     country_name,
+    //     state_name,
+    //     city_name,
+    //     taluka,
+    //     district } = req.body;
+
+    // //update only necossory fields in database    
+    // User.updateOne({ email }, {
+    //     $set: {
+    //         profile_completed: 50,
+    //         height,
+    //         weight,
+    //         bloodGroup,
+    //         education,
+    //         occupation,
+    //         salaryPA,
+    //         dob,
+    //         birth_time,
+    //         birth_place,
+    //         caste,
+    //         subCaste,
+    //         complexion,
+    //         disablity,
+    //         maritalStatus,
+    //         childrens_count,
+    //         addressLine2,
+    //         country_name,
+    //         state_name,
+    //         city_name,
+    //         taluka,
+    //         district
+    //     }
+    // },).then(async () => {
+    //     res.status(200).send("basic details submited succesfully..")
+    // }).catch(() => {
+    //     res.status(400).send("sorry some error occured")
+
+    // })
+})
+
+//3.getting family details
+router.post("/getfamilydetails", (req, res) => {
+    const { email,
+        fathers_name,
+        fathers_occupation,
+        mothers_name,
+        mothers_occupation,
+        bother_select,
+        bother_status,
+        sister_select,
+        sister_status,
+        vehicle } = req.body;
+
+    //update only necossory fields in database    
+    User.updateOne({ email }, {
+        $set: {
+            fathers_name,
+            fathers_occupation, profile_completed: 50,
+            mothers_name,
+            mothers_occupation,
+            bother_select,
+            bother_status,
+            sister_select,
+            sister_status,
+            vehicle
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send("family details submited succesfully..")
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+
+});
+
+//4 getting horoscope details (optional)
+router.post('/gethoroscopedetails', (req, res) => {
+    const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
+    User.updateOne({ email }, {
+        $set: {
+            rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send("horoscope details submited succesfully..")
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+})
+
 module.exports = router

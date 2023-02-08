@@ -24,11 +24,6 @@ const getAccesstoken = require("../../Functions/getaccessToken");
 //middlewears 
 const Authorizaton = require("../../Middlewears/authrization");
 
-
-
-
-
-
 //route to register a user
 router.post('/register', async (req, res) => {
     const { firstname, email, mobile, password, lastname, gender } = req.body
@@ -86,6 +81,7 @@ router.post('/login', (req, res) => {
     })
 
 })
+
 //sendDeletePreviewMale to user
 router.post("/senddeletepreviewemale", (req, res) => {
     const { email, firstname } = req.body
@@ -110,7 +106,6 @@ router.post("/senddeletepreviewemale", (req, res) => {
     })
 
 })
-
 
 //delete user for normal user
 router.post('/deleteprofile', async (req, res) => {
@@ -270,7 +265,6 @@ router.post("/resendotp", Authorizaton, (req, res) => {
 
 })
 
-
 //forgot password route for user
 router.post('/forgotpassword', async (req, res) => {
     const { email } = req.body;
@@ -313,13 +307,12 @@ router.post('/resetpassword', Authorizaton, async (req, res) => {
     })
 })
 
-
 router.get('/samplecheack', Authorizaton, (req, res) => {
     res.status(200).send(req.user)
 })
 
 //get all details of user except sirname,email,mobile
-router.post('/getalluserdetails',Authorizaton, (req, res) => {
+router.post('/getalluserdetails', Authorizaton, (req, res) => {
     const { id } = req.body;
     //get user profile details
     UserModel.findById(id).then((val) => {
@@ -401,66 +394,68 @@ router.post("/normalsearch", async (req, res) => {
 
 //**************getting remaing details from user***********
 //1.gettting basic info
-router.post('/getbasicinfo', Authorizaton, (req, res) => {
-    const {
-        height,
-        weight,
-        bloodGroup,
-        education,
-        occupation,
-        salaryPA,
-        dob,
-        birth_time,
-        birth_place,
-        caste,
-        subCaste,
-        complexion,
-        disablity,
-        maritalStatus,
-        childrens_count,
-        addressLine2,
-        country_name,
-        state_name,
-        city_name,
-        taluka,
-        district } = req.body;
+router.post('/getbasicinfouser', (req, res) => {
+    console.log(req.body)
+    res.send(req.body)
+    // const {
+    //     height,
+    //     weight,
+    //     bloodGroup,
+    //     education,
+    //     occupation,
+    //     salaryPA,
+    //     dob,
+    //     birth_time,
+    //     birth_place,
+    //     caste,
+    //     subCaste,
+    //     complexion,
+    //     disablity,
+    //     maritalStatus,
+    //     childrens_count,
+    //     addressLine2,
+    //     country_name,
+    //     state_name,
+    //     city_name,
+    //     taluka,
+    //     district } = req.body;
 
-    //update only necossory fields in database    
-    User.updateOne({ email: req.email }, {
-        $set: {
-            profile_completed: 50,
-            height,
-            weight,
-            bloodGroup,
-            education,
-            occupation,
-            salaryPA,
-            dob,
-            birth_time,
-            birth_place,
-            caste,
-            subCaste,
-            complexion,
-            disablity,
-            maritalStatus,
-            childrens_count,
-            addressLine2,
-            country_name,
-            state_name,
-            city_name,
-            taluka,
-            district
-        }
-    }, { new: true }).then(async (val1) => {
-        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
-    }).catch((err) => {
-        res.status(400).send("sorry some error occured")
+    // //update only necossory fields in database    
+    // User.updateOne({ email: req.email }, {
+    //     $set: {
+    //         profile_completed: 50,
+    //         height,
+    //         weight,
+    //         bloodGroup,
+    //         education,
+    //         occupation,
+    //         salaryPA,
+    //         dob,
+    //         birth_time,
+    //         birth_place,
+    //         caste,
+    //         subCaste,
+    //         complexion,
+    //         disablity,
+    //         maritalStatus,
+    //         childrens_count,
+    //         addressLine2,
+    //         country_name,
+    //         state_name,
+    //         city_name,
+    //         taluka,
+    //         district
+    //     }
+    // }, { new: true }).then(async (val1) => {
+    //     res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    // }).catch((err) => {
+    //     res.status(400).send("sorry some error occured")
 
-    })
+    // })
 })
 
 //2.Family details 
-router.post("/getfamilydetails", (req, res) => {
+router.post("/getfamilydetails", Authorizaton, (req, res) => {
     const {
         fathers_name,
         fathers_occupation,
@@ -475,6 +470,7 @@ router.post("/getfamilydetails", (req, res) => {
     //update only necossory fields in database    
     User.updateOne({ email: req.email }, {
         $set: {
+            profile_completed: 50,
             fathers_name,
             fathers_occupation,
             mothers_name,
@@ -493,6 +489,19 @@ router.post("/getfamilydetails", (req, res) => {
 
 });
 
+//3.Horoscope details
+router.post('/gethoroscopedetails', Authorizaton, (req, res) => {
+    const { rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
+    User.updateOne({ email: req.email }, {
+        $set: {
+            rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+})
 
 module.exports = router
 

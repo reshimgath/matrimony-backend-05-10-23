@@ -54,5 +54,8 @@ get expired users from database
 /updatestories
 /deletestory
 
-9)Main admin can create profile without any authentication
+9)set and get customer queries
+
+
+10)Main admin can create profile without any authentication
 

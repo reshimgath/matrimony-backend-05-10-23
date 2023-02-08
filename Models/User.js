@@ -141,5 +141,37 @@ let usermodel = new mongoose.Schema({
     vehicle: {
         type: String
     }
+    ,
+    //Horoscope details
+    rashi: {
+        type: String
+
+    }
+    , nakshatra: {
+        type: String
+    }
+    , mangal: {
+        type: Boolean
+    }
+    , charan: {
+        type: String
+    }
+    , time_of_birth: {
+        type: String
+    },
+    place_of_birth: {
+        type: String
+    }
+    , nadi: {
+        type: String
+    },
+    devak: {
+        type: String
+    },
+    gan: {
+        type: String
+    }
+    
+
 })
 module.exports = mongoose.model("user", usermodel)
