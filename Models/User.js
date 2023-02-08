@@ -190,9 +190,35 @@ let usermodel = new mongoose.Schema({
     },
     gan: {
         type: String
-    }
-    
-
-
+    },
+    //partner prefrence
+    education_pref:{
+        type:String
+    },
+    occupation_pref:{
+        type:String
+    },
+    salary_pref:{
+        type:String
+    },
+    complexion_pref:{
+        type:String
+    },
+    height_pref:{
+        type:String
+    },
+    religion_pref:{
+        type:String
+    },
+    caste_pref:{
+        type:String
+    },
+    state_pref:{
+        type:String
+    },
+    location_pref:{
+        type:String
+    },
 })
+
 module.exports = mongoose.model("user", usermodel)
