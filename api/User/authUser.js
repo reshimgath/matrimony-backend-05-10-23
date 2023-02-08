@@ -22,6 +22,7 @@ const getAccesstoken = require("../../Functions/getaccessToken");
 
 //middlewears 
 const Authorizaton = require("../../Middlewears/authrization");
+const User = require("../../Models/User");
 
 
 
@@ -49,7 +50,9 @@ router.post('/register', async (req, res) => {
             mailSender(email, otp, firstname).then(async () => {
                 res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins), message: "otp sent succesfulyy" })
             }).catch((err) => {
+                console.log(err)
                 res.send({ status: 400, message: "error while sendng the mail.." })
+
             });
 
         }).catch(() => {
@@ -64,6 +67,7 @@ router.post('/register', async (req, res) => {
 //router login a user
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
+    // console.log(req.body)
     //find the user with email in database
     UserModel.findOne({ email }).then((val1) => {
         if (val1) {
@@ -72,13 +76,14 @@ router.post('/login', (req, res) => {
                 if (correct) {
                     res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
                 }
+
                 else {
-                    res.status(401).send("incorrect password")
+                    res.status(401).send("Incorrect password")
                 }
             })
         }
         else {
-            res.status(401).send("sorry user not found with given email id")
+            res.status(401).send("Sorry user not found with given email id")
         }
     }).catch(() => {
         res.status(400).send("sorry errro in mongodb")
@@ -163,6 +168,7 @@ router.post('/updateprofile', (req, res) => {
 //*********verify the otp sent to mobile********
 router.post('/verifyotp', Authorizaton, (req, res) => {
     const { otp } = req.body
+    console.log(otp)
     //find if otp exist in gien database*********
     OTP.findOne({ email: req.email }).then((val) => {
         if (val != null) {
@@ -341,6 +347,100 @@ router.post("/normalsearch", async (req, res) => {
         res.status(400).send('sorry errror found..')
     }
 })
+
+//**************getting remaing details from user***********
+//1.gettting basic info
+router.post('/getbasicinfo', Authorizaton, (req, res) => {
+    const {
+        height,
+        weight,
+        bloodGroup,
+        education,
+        occupation,
+        salaryPA,
+        dob,
+        birth_time,
+        birth_place,
+        caste,
+        subCaste,
+        complexion,
+        disablity,
+        maritalStatus,
+        childrens_count,
+        addressLine2,
+        country_name,
+        state_name,
+        city_name,
+        taluka,
+        district } = req.body;
+
+    //update only necossory fields in database    
+    User.updateOne({ email: req.email }, {
+        $set: {
+            profile_completed: 50,
+            height,
+            weight,
+            bloodGroup,
+            education,
+            occupation,
+            salaryPA,
+            dob,
+            birth_time,
+            birth_place,
+            caste,
+            subCaste,
+            complexion,
+            disablity,
+            maritalStatus,
+            childrens_count,
+            addressLine2,
+            country_name,
+            state_name,
+            city_name,
+            taluka,
+            district
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+
+    })
+})
+
+//2.Family details 
+router.post("/getfamilydetails", (req, res) => {
+    const {
+        fathers_name,
+        fathers_occupation,
+        mothers_name,
+        mothers_occupation,
+        bother_select,
+        bother_status,
+        sister_select,
+        sister_status,
+        vehicle } = req.body;
+
+    //update only necossory fields in database    
+    User.updateOne({ email: req.email }, {
+        $set: {
+            fathers_name,
+            fathers_occupation,
+            mothers_name,
+            mothers_occupation,
+            bother_select,
+            bother_status,
+            sister_select,
+            sister_status,
+            vehicle
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+
+});
 
 
 module.exports = router

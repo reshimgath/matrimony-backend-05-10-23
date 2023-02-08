@@ -6,6 +6,22 @@ require('dotenv').config();
 const app = express()
 const port = 3031 || process.env.port
 const connection = `mongodb+srv://Muchmark:${process.env.mongopassword}@cluster0.irij3nk.mongodb.net/reshimgath?retryWrites=true&w=majority`
+app.use(cors())
+app.use(bodyParser.json())
+app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(cors({
+//     origin: '*',
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//     allowedHeaders: '*'
+// }));
+
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+//     next();
+// });
 
 //import routers
 const authUser = require("./api/User/authUser")
@@ -15,8 +31,8 @@ const admincrud = require("./api/Admin/adminCrud")
 
 
 //use middlewaers 
-app.use(cors())
-app.use(bodyParser.json())
+
+
 
 //connect to mongodb
 mongoose.set('strictQuery', true);
