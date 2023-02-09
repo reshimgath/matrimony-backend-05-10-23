@@ -1,0 +1,97 @@
+Admin api list	Creation	status	descrption	integration	remark
+1)Admin Section					
+*******************************admincrud/createadmin 
+done	
+private	
+root admin can create new admin		
+
+*******************************admincrud/deleteadmin	
+done	
+private
+root admin can delete admin	
+
+*******************************admincrud/getalladmins	
+done	
+private	
+show all admins		
+
+*******************************admincrud/loginadmin	
+done	
+public	
+api for login to admin		
+
+2)Filters,Reacharges,delete,update					
+*******************************admincrud/getspecificuser	
+done	
+private	
+api for admin section filter		
+
+*******************************admincrud/deletespecificuser	
+done	
+private	api to delete specific user	
+
+*******************************admincrud/updatespecificuser		
+private	
+api to update specific user	
+
+*******************************admincrud/rechargeuser	
+done	
+private	
+api which is used to recharge user 
+
+*admin/getexpired users	
+done	
+private	
+api used to get expired users		
+					
+3)Crud for Success stories					
+*******************************admincrud/addstories	
+done	
+private	api to create new story 
+
+*******************************admincrud/getstories	
+done	
+public	api to get all details of story		
+
+*******************************admincrud/updatestories	
+done	
+public	
+api to update story details	
+
+*******************************admincrud/deletestory	
+done	
+public	
+api to delete story		
+					
+4)Costumer queries					
+*******************************admincrud/getqueries	
+done	
+public	
+
+*******************************admincrud/customerqueries
+done	
+private			
+					
+5)New profile creation from admin					
+*******************************admincrud/register	done	
+private
+api to register a user		
+
+*******************************admincrud/getbasicinfo	done	
+private	
+api to get basic info	
+
+*******************************admincrud/getfamilydetails	
+done	
+private	
+api to get family details
+
+*******************************admincrud/getpartnerprefrence	
+done	
+private	
+api to get partner prefrence
+
+*******************************admincrud/gethoroscopedetails
+done	
+private
+api to get horoscope details		

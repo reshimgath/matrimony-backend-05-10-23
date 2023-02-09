@@ -309,8 +309,11 @@ router.post('/register', adminAuthorizaton, async (req, res) => {
 })
 
 //2.gettting basic info
-router.post('/getbasicinfo', adminAuthorizaton, (req, res) => {
+router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
     const {
+        image1,
+        image2,
+        image3,
         email,
         height,
         weight,
@@ -332,7 +335,12 @@ router.post('/getbasicinfo', adminAuthorizaton, (req, res) => {
         state_name,
         city_name,
         taluka,
-        district } = req.body;
+        district,
+        mother_tongue } = req.body;
+
+    const responseCloud1 = await cloudinary.uploader.upload(image1)
+    const responseCloud2 = await cloudinary.uploader.upload(image2)
+    const responseCloud3 = await cloudinary.uploader.upload(image3)
 
     //update only necossory fields in database    
     User.findByIdAndUpdate({ email }, {
@@ -343,6 +351,7 @@ router.post('/getbasicinfo', adminAuthorizaton, (req, res) => {
             bloodGroup,
             education,
             occupation,
+            mother_tongue,
             salaryPA,
             dob,
             birth_time,
@@ -358,7 +367,10 @@ router.post('/getbasicinfo', adminAuthorizaton, (req, res) => {
             state_name,
             city_name,
             taluka,
-            district
+            district,
+            image1: responseCloud1.url,
+            image2: responseCloud2.url,
+            image3: responseCloud3.url
         }
     },).then(async () => {
         res.status(200).send("basic details submited succesfully..")
@@ -450,5 +462,10 @@ router.post('/gethoroscopedetails', (req, res) => {
         res.status(400).send("sorry some error occured")
     })
 })
+
+//Update User Profile 
+router.post('/updateuserprofile',(req,res)=>{
+    
+}) 
 
 module.exports = router
