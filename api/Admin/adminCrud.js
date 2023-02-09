@@ -299,63 +299,62 @@ router.post('/register', async (req, res) => {
 
 //2.gettting basic info
 router.post('/getbasicinfo', (req, res) => {
-    console.log(req.body)
-    res.send("ok")
-    // const { email,
-    //     height,
-    //     weight,
-    //     bloodGroup,
-    //     education,
-    //     occupation,
-    //     salaryPA,
-    //     dob,
-    //     birth_time,
-    //     birth_place,
-    //     caste,
-    //     subCaste,
-    //     complexion,
-    //     disablity,
-    //     maritalStatus,
-    //     childrens_count,
-    //     addressLine2,
-    //     country_name,
-    //     state_name,
-    //     city_name,
-    //     taluka,
-    //     district } = req.body;
+
+    const { email,
+        height,
+        weight,
+        bloodGroup,
+        education,
+        occupation,
+        salaryPA,
+        dob,
+        birth_time,
+        birth_place,
+        caste,
+        subCaste,
+        complexion,
+        disablity,
+        maritalStatus,
+        childrens_count,
+        addressLine2,
+        country_name,
+        state_name,
+        city_name,
+        taluka,
+        district } = req.body;
 
     // //update only necossory fields in database    
-    // User.updateOne({ email }, {
-    //     $set: {
-    //         profile_completed: 50,
-    //         height,
-    //         weight,
-    //         bloodGroup,
-    //         education,
-    //         occupation,
-    //         salaryPA,
-    //         dob,
-    //         birth_time,
-    //         birth_place,
-    //         caste,
-    //         subCaste,
-    //         complexion,
-    //         disablity,
-    //         maritalStatus,
-    //         childrens_count,
-    //         addressLine2,
-    //         country_name,
-    //         state_name,
-    //         city_name,
-    //         taluka,
-    //         district
-    //     }
-    // },).then(async () => {
-    //     res.status(200).send("basic details submited succesfully..")
-    // }).catch(() => {
-    //     res.status(400).send("sorry some error occured")
+    User.updateOne({ email }, {
+        $set: {
+            profile_completed: 50,
+            height,
+            weight,
+            bloodGroup,
+            education,
+            occupation,
+            salaryPA,
+            dob,
+            birth_time,
+            birth_place,
+            caste,
+            subCaste,
+            complexion,
+            disablity,
+            maritalStatus,
+            childrens_count,
+            addressLine2,
+            country_name,
+            state_name,
+            city_name,
+            taluka,
+            district
+        }
+    },).then(async () => {
+        res.status(200).send("basic details submited succesfully..")
+    }).catch(() => {
+        res.status(400).send("sorry some error occured")
 
-    // })
+    })
 })
 
 //3.getting family details
