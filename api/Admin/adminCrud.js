@@ -61,6 +61,18 @@ router.get("/deleteadmin", adminAuthorizaton, (req, res) => {
     })
 
 })
+//get all admin details
+router.get("/getalladmins", async (req, res) => {
+    try {
+        const data = await AdminModel.find()
+        res.status(200).send(data)
+    }
+    catch (e) {
+        console.log(e)
+        res.status(400).send("sorry some errro occured..")
+
+    }
+})
 
 //admin login
 router.post("/loginadmin", async (req, res) => {
@@ -183,6 +195,7 @@ router.post("/addstories", async (req, res) => {
     }
 
 })
+
 //Read:get all stories
 router.get("/getstories", async (req, res) => {
     try {
@@ -194,7 +207,6 @@ router.get("/getstories", async (req, res) => {
 
     }
 })
-
 
 //Update: perticular story
 router.post("/updatestories", async (req, res) => {
@@ -263,7 +275,7 @@ router.post("/getqueries", (req, res) => {
 
 })
 //send customer queries back
-router.get('/customerqueries', (req, res) => {
+router.get('/customerqueries', adminAuthorizaton, (req, res) => {
 
     Queries.find().then((val) => {
         res.status(200).send(val)
@@ -274,8 +286,7 @@ router.get('/customerqueries', (req, res) => {
 
 //********* normal admin can create users without email verification */
 //1.get register informaton
-//route to register a user
-router.post('/register', async (req, res) => {
+router.post('/register', adminAuthorizaton, async (req, res) => {
     const { firstname, email, mobile, password, lastname, gender } = req.body
 
     //generate secure hashed password
@@ -298,69 +309,69 @@ router.post('/register', async (req, res) => {
 })
 
 //2.gettting basic info
-router.post('/getbasicinfo', (req, res) => {
-    console.log(req.body)
-    res.send("ok")
-    // const { email,
-    //     height,
-    //     weight,
-    //     bloodGroup,
-    //     education,
-    //     occupation,
-    //     salaryPA,
-    //     dob,
-    //     birth_time,
-    //     birth_place,
-    //     caste,
-    //     subCaste,
-    //     complexion,
-    //     disablity,
-    //     maritalStatus,
-    //     childrens_count,
-    //     addressLine2,
-    //     country_name,
-    //     state_name,
-    //     city_name,
-    //     taluka,
-    //     district } = req.body;
+router.post('/getbasicinfo', adminAuthorizaton, (req, res) => {
+    const {
+        email,
+        height,
+        weight,
+        bloodGroup,
+        education,
+        occupation,
+        salaryPA,
+        dob,
+        birth_time,
+        birth_place,
+        caste,
+        subCaste,
+        complexion,
+        disablity,
+        maritalStatus,
+        childrens_count,
+        addressLine2,
+        country_name,
+        state_name,
+        city_name,
+        taluka,
+        district } = req.body;
 
-    // //update only necossory fields in database    
-    // User.updateOne({ email }, {
-    //     $set: {
-    //         profile_completed: 50,
-    //         height,
-    //         weight,
-    //         bloodGroup,
-    //         education,
-    //         occupation,
-    //         salaryPA,
-    //         dob,
-    //         birth_time,
-    //         birth_place,
-    //         caste,
-    //         subCaste,
-    //         complexion,
-    //         disablity,
-    //         maritalStatus,
-    //         childrens_count,
-    //         addressLine2,
-    //         country_name,
-    //         state_name,
-    //         city_name,
-    //         taluka,
-    //         district
-    //     }
-    // },).then(async () => {
-    //     res.status(200).send("basic details submited succesfully..")
-    // }).catch(() => {
-    //     res.status(400).send("sorry some error occured")
+    //update only necossory fields in database    
+    User.findByIdAndUpdate({ email }, {
+        $set: {
+            profile_completed: 50,
+            height,
+            weight,
+            bloodGroup,
+            education,
+            occupation,
+            salaryPA,
+            dob,
+            birth_time,
+            birth_place,
+            caste,
+            subCaste,
+            complexion,
+            disablity,
+            maritalStatus,
+            childrens_count,
+            addressLine2,
+            country_name,
+            state_name,
+            city_name,
+            taluka,
+            district
+        }
+    },).then(async () => {
+        res.status(200).send("basic details submited succesfully..")
+    }).catch(() => {
+        res.status(400).send("sorry some error occured")
 
-    // })
+    })
 })
 
 //3.getting family details
 router.post("/getfamilydetails", (req, res) => {
-    const { email,
+    const {
+        email,
         fathers_name,
         fathers_occupation,
         mothers_name,
@@ -372,10 +383,11 @@ router.post("/getfamilydetails", (req, res) => {
         vehicle } = req.body;
 
     //update only necossory fields in database    
-    User.updateOne({ email }, {
+    User.findByIdAndUpdate({ email }, {
         $set: {
             fathers_name,
-            fathers_occupation, profile_completed: 50,
+            fathers_occupation,
+            profile_completed: 70,
             mothers_name,
             mothers_occupation,
             bother_select,
@@ -391,11 +403,44 @@ router.post("/getfamilydetails", (req, res) => {
     })
 
 });
+//3.partner prefrence
+router.post('/getpartnerprefrence', (req, res) => {
+    const {
+        email,
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref } = req.body
+    User.findByIdAndUpdate({ email }, {
+        $set: {
+            education_pref,
+            occupation_pref,
+            salary_pref,
+            complexion_pref,
+            height_pref,
+            religion_pref,
+            caste_pref,
+            state_pref,
+            location_pref,
+            profile_completed: 100,
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send("partner prefrence details added succesfully...")
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
 
-//4 getting horoscope details (optional)
+
+})
+//4.getting horoscope details (optional)
 router.post('/gethoroscopedetails', (req, res) => {
     const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
-    User.updateOne({ email }, {
+    User.findByIdAndUpdate({ email }, {
         $set: {
             rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
         }

@@ -48,6 +48,7 @@ let usermodel = new mongoose.Schema({
         type: Date,
         default: 0
     },
+
     //*************basic info start***********
     height: {
         type: String,
@@ -109,6 +110,9 @@ let usermodel = new mongoose.Schema({
         type: String,
         default: ""
     },
+    mother_tongue: {
+        type: String
+    },
     addressLine2: {
         type: String,
         default: ""
@@ -133,6 +137,16 @@ let usermodel = new mongoose.Schema({
         type: String,
         default: ""
     },
+    image1: {
+        type: String
+    },
+    image2: {
+        type: String
+    },
+    image3: {
+        type: String
+    },
+
     //****get family details***
     fathers_name: {
         type: String
@@ -162,6 +176,7 @@ let usermodel = new mongoose.Schema({
         type: String
     }
     ,
+
     //Horoscope details
     rashi: {
         type: String
@@ -191,33 +206,34 @@ let usermodel = new mongoose.Schema({
     gan: {
         type: String
     },
+
     //partner prefrence
-    education_pref:{
-        type:String
+    education_pref: {
+        type: String
     },
-    occupation_pref:{
-        type:String
+    occupation_pref: {
+        type: String
     },
-    salary_pref:{
-        type:String
+    salary_pref: {
+        type: String
     },
-    complexion_pref:{
-        type:String
+    complexion_pref: {
+        type: String
     },
-    height_pref:{
-        type:String
+    height_pref: {
+        type: String
     },
-    religion_pref:{
-        type:String
+    religion_pref: {
+        type: String
     },
-    caste_pref:{
-        type:String
+    caste_pref: {
+        type: String
     },
-    state_pref:{
-        type:String
+    state_pref: {
+        type: String
     },
-    location_pref:{
-        type:String
+    location_pref: {
+        type: String
     },
 })
 
