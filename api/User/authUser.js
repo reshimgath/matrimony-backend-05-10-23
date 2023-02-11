@@ -400,7 +400,8 @@ router.post("/normalsearch", async (req, res) => {
 
 //**************getting remaing details from user***********
 //1.gettting basic info
-router.post('/getbasicinfouser', (req, res) => {
+router.post('/getbasicinfouser', Authorizaton, (req, res) => {
+
     const {
         height,
         weight,
@@ -424,8 +425,8 @@ router.post('/getbasicinfouser', (req, res) => {
         taluka,
         district } = req.body;
 
-    // //update only necossory fields in database    
-    User.updateOne({ email: req.email }, {
+    //update only necossory fields in database    
+    User.findOneAndUpdate({ email: req.email }, {
         $set: {
             profile_completed: 50,
             height,
@@ -472,9 +473,9 @@ router.post("/getfamilydetails", Authorizaton, (req, res) => {
         vehicle } = req.body;
 
     //update only necossory fields in database    
-    User.updateOne({ email: req.email }, {
+    User.findOneAndUpdate({ email: req.email }, {
         $set: {
-            profile_completed: 50,
+            profile_completed: 70,
             fathers_name,
             fathers_occupation,
             mothers_name,
@@ -493,7 +494,44 @@ router.post("/getfamilydetails", Authorizaton, (req, res) => {
 
 });
 
-//3.Horoscope details
+//3.partner prefrence
+router.post('/getpartnerprefrence', Authorizaton, (req, res) => {
+
+    const {
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref } = req.body
+    User.findOneAndUpdate({ email: req.email }, {
+        $set: {
+            education_pref,
+            occupation_pref,
+            salary_pref,
+            complexion_pref,
+            height_pref,
+            religion_pref,
+            caste_pref,
+            state_pref,
+            location_pref,
+            profile_completed: 100,
+        }
+    }, { new: true }).then(async (val1) => {
+
+        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+    }).catch((err) => {
+
+        res.status(400).send("sorry some error occured")
+    })
+
+
+})
+
+//4.Horoscope details
 router.post('/gethoroscopedetails', Authorizaton, (req, res) => {
     // console.log(req.body)
     const { rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
@@ -507,6 +545,7 @@ router.post('/gethoroscopedetails', Authorizaton, (req, res) => {
         res.status(400).send("sorry some error occured")
     })
 })
+//**************getting remaing details from user completed***********
 
 module.exports = router
 
