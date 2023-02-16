@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router();
 const otpGenerator = require('otp-generator')
 require('dotenv').config();
-const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs");
 const generator = require('generate-password');
 //Scheama models
@@ -24,6 +23,15 @@ const getAccesstoken = require("../../Functions/getaccessToken");
 //middlewears 
 const Authorizaton = require("../../Middlewears/authrization");
 const User = require("../../Models/User");
+
+//cloudinary setup
+var cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: process.env.cloud_name,
+    api_key: process.env.api_key,
+    api_secret: process.env.api_secret,
+    secure: true
+});
 
 //route to register a user
 router.post('/register', async (req, res) => {
@@ -87,81 +95,7 @@ router.post('/login', (req, res) => {
 
 })
 
-//sendDeletePreviewMale to user
-router.post("/senddeletepreviewemale", (req, res) => {
-    const { email, firstname } = req.body
-    //otp generator
-    const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
-    //create DeleteOtp 
-    const Deleteotp = new DeleteOtpModel({
-        otp,
-        email, createdAt: Date.now(), expireAt: Date.now() + 180000
-    })
-
-    Deleteotp.save().then(() => {
-        //send verifivation mail ro user
-        deleteConfirm(email, otp, firstname).then(() => {
-            res.status(200).send("email sent succesfully..")
-        }).catch((err) => {
-            res.status(400).send("sorry error while sending the mail..")
-        })
-        // res.status(200).send("ok")
-    }).catch(() => {
-        res.status(400).send("sorry errror in mongodb..")
-    })
-
-})
-
-//delete user for normal user
-router.post('/deleteprofile', async (req, res) => {
-    const { id, email, gender, mobile, reason, otp } = req.body
-    try {
-        const otpdata = await DeleteOtpModel.findOne({ email })
-        if (otpdata) {
-            //cheack otp expired or not
-            if (otpdata.expireAt > Date.now()) {
-                if (otpdata.otp === otp) {
-                    const deleted = new Deleted({
-                        mobile, email, gender, reason
-                    })
-                    //save the deleted informataion
-                    deleted.save().then(() => {
-                        //delete the info from database
-                        UserModel.findByIdAndDelete(id).then(() => {
-                            res.status(200).send("deleted succesfully..")
-                        }).catch(() => {
-                            res.status(400).send("sorrry errror while deleting profile")
-                        })
-                    }).catch(() => {
-                        res.status(400).send("sorrry errro in mongodb ")
-                    })
-                }
-                else {
-                    res.status(400).send("please fill correct otp")
-                }
-
-            }
-            else {
-                res.status(400).send("sorrry errror in mongodb..")
-            }
-        }
-        else {
-            res.status(400).send("sorrry bad request")
-        }
-    }
-    catch (e) {
-        res.status(400), send("sorry some errro occured please try again later..")
-    }
-
-
-})
-
-//update profile for normal user
-router.post('/updateprofile', (req, res) => {
-    res.status(200).send("profile updated succesfulyy....")
-})
-
-//*********verify the otp sent to mobile********
+//verify the otp sent to mobile********
 router.post('/verifyotp', Authorizaton, (req, res) => {
     const { otp } = req.body
     // console.log(otp)
@@ -282,7 +216,7 @@ router.post('/forgotpassword', async (req, res) => {
     //generate secure hashed password
     const salt = await bcrypt.genSalt(10);
     const secpass = await bcrypt.hash(password, salt);
-    UserModel.findByIdAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email }, {
         $set: {
             secure_password: secpass
         }
@@ -312,28 +246,22 @@ router.post('/resetpassword', Authorizaton, async (req, res) => {
         res.status(400).send("password not updated try again later...")
     })
 })
+//****** api for authentication end***********/
 
-router.get('/samplecheack', Authorizaton, (req, res) => {
-    res.status(200).send(req.user)
-})
 
-//get all details of user except sirname,email,mobile
+//****************searching apis list*********
+//get all details of user except private details
 router.post('/getalluserdetails', Authorizaton, (req, res) => {
     const { id } = req.body;
     //get user profile details
-    UserModel.findById(id).then((val) => {
+    UserModel.findById(id, { email: 0, mobile: 0, lastname: 0, addressLine2: 0, country_name: 0, state_name: 0, city_name: 0, taluka: 0, district: 0 }).then((val) => {
         res.status(200).send(val)
     }).catch(() => {
         res.status(400).send("sorry errror in mongodb...")
     })
 })
 
-
 //access the user profile contact details
-//1:full name
-//2:adress 
-//3.phone number
-//4.email adress
 router.post("/getusercontactdetails", async (req, res) => {
     const { profileid, email } = req.body;
     try {
@@ -342,13 +270,13 @@ router.post("/getusercontactdetails", async (req, res) => {
         if (data) {
             //cheack wheather recharge expired or not
             if (data.rechargExpireDate > Date.now()) {
-                if (data.coins < 0) {
+                if (data.coins <= 0) {
                     res.status(200).send("sorrry you don't have enough coins ")
                 }
                 else {
                     try {
                         //get the actual profile which need to share back to user
-                        const profiledata = await UserModel.findOne({ _id: profileid }, { email: 1, mobile: 1, lastname: 1 })
+                        const profiledata = await UserModel.findOne({ _id: profileid }, { email: 1, mobile: 1, lastname: 1, addressLine2: 1, country_name: 1, state_name: 1, city_name: 1, taluka: 1, district: 1 })
                         if (profiledata) {
 
                             //decrease coins by 5
@@ -381,16 +309,10 @@ router.post("/getusercontactdetails", async (req, res) => {
 
 //api for normal search
 router.post("/normalsearch", async (req, res) => {
-    // lookingFor
-    // fromAge
-    // toAge
-    // maritalStatus
-    // Religion
     //{ $or: [{ email: email }, { firstname: name }] }
     const { lookingFor, fromAge, toAge, maritalStatus, Religion } = req.body
     try {
-        //{ Religion, maritalStatus, gender: lookingFor, age: { $gt: fromAge, $lt: toAge } }
-        const result = await UserModel.find()
+        const result = await UserModel.find({ Religion, maritalStatus, gender: lookingFor, age: { $gt: fromAge, $lt: toAge } })
         res.status(200).send(result)
     }
     catch (e) {
@@ -398,13 +320,43 @@ router.post("/normalsearch", async (req, res) => {
     }
 })
 
-//**************getting remaing details from user***********
+//api for advance search 
+router.post("/advancesearch", async (req, res) => {
+    const {
+        lookingFor,
+        fromAge,
+        toAge,
+        maritalStatus,
+        Religion,
+        caste,
+        height,
+        education,
+        salary,
+        state,
+        location } = req.body;
+
+    try {
+        const data = await UserModel.find({ Religion, maritalStatus, caste, gender: lookingFor, age: { $gt: fromAge, $lt: toAge }, height, education, salaryPA: salary, state_name: state, city_name: location })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry some errror occured..")
+
+    }
+
+})
+
+//A) Create **********************************************************************************
 //1.gettting basic info
-router.post('/getbasicinfouser', Authorizaton, (req, res) => {
+router.post('/getbasicinfouser', Authorizaton, async (req, res) => {
 
     const {
+        image1,
+        image2,
+        image3,
         height,
         weight,
+        mother_tongue,
         bloodGroup,
         education,
         occupation,
@@ -425,38 +377,51 @@ router.post('/getbasicinfouser', Authorizaton, (req, res) => {
         taluka,
         district } = req.body;
 
-    //update only necossory fields in database    
-    User.findOneAndUpdate({ email: req.email }, {
-        $set: {
-            profile_completed: 50,
-            height,
-            weight,
-            bloodGroup,
-            education,
-            occupation,
-            salaryPA,
-            dob,
-            birth_time,
-            birth_place,
-            caste,
-            subCaste,
-            complexion,
-            disablity,
-            maritalStatus,
-            childrens_count,
-            addressLine2,
-            country_name,
-            state_name,
-            city_name,
-            taluka,
-            district
-        }
-    }, { new: true }).then(async (val1) => {
-        res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
-    }).catch((err) => {
-        res.status(400).send("sorry some error occured")
+    try {
+        const responseCloud1 = await cloudinary.uploader.upload(image1)
+        const responseCloud2 = await cloudinary.uploader.upload(image2)
+        const responseCloud3 = await cloudinary.uploader.upload(image3)
+        //update only necossory fields in database    
+        User.findOneAndUpdate({ email: req.email }, {
+            $set: {
+                profile_completed: 50,
+                height,
+                weight,
+                bloodGroup,
+                education,
+                occupation,
+                salaryPA,
+                dob,
+                mother_tongue,
+                birth_time,
+                birth_place,
+                caste,
+                subCaste,
+                complexion,
+                disablity,
+                maritalStatus,
+                childrens_count,
+                addressLine2,
+                country_name,
+                state_name,
+                city_name,
+                taluka,
+                district,
+                image1: responseCloud1.url,
+                image2: responseCloud2.url,
+                image3: responseCloud3.url
+            }
+        }, { new: true }).then(async (val1) => {
+            res.status(200).send({ datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins) })
+        }).catch((err) => {
+            res.status(400).send("sorry some error occured")
 
-    })
+        })
+    }
+    catch (e) {
+        res.statuys(400).send("sorry some errror occured..")
+    }
+
 })
 
 //2.Family details 
@@ -545,7 +510,81 @@ router.post('/gethoroscopedetails', Authorizaton, (req, res) => {
         res.status(400).send("sorry some error occured")
     })
 })
-//**************getting remaing details from user completed***********
+
+//B)Read********************************************************************
+
+//C)Update
+
+
+//D)Delete*****************************************************************************************************
+//sendDeletePreviewMale to user
+router.post("/senddeletepreviewemale", (req, res) => {
+    const { email, firstname } = req.body
+    //otp generator
+    const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    //create DeleteOtp 
+    const Deleteotp = new DeleteOtpModel({
+        otp,
+        email, createdAt: Date.now(), expireAt: Date.now() + 180000
+    })
+
+    Deleteotp.save().then(() => {
+        //send verifivation mail ro user
+        deleteConfirm(email, otp, firstname).then(() => {
+            res.status(200).send("email sent succesfully..")
+        }).catch((err) => {
+            res.status(400).send("sorry error while sending the mail..")
+        })
+        // res.status(200).send("ok")
+    }).catch(() => {
+        res.status(400).send("sorry errror in mongodb..")
+    })
+
+})
+
+//delete user for normal user
+router.post('/deleteprofile', async (req, res) => {
+    const { id, email, gender, mobile, reason, otp } = req.body
+    try {
+        const otpdata = await DeleteOtpModel.findOne({ email })
+        if (otpdata) {
+            //cheack otp expired or not
+            if (otpdata.expireAt > Date.now()) {
+                if (otpdata.otp === otp) {
+                    const deleted = new Deleted({
+                        mobile, email, gender, reason
+                    })
+                    //save the deleted informataion
+                    deleted.save().then(() => {
+                        //delete the info from database
+                        UserModel.findByIdAndDelete(id).then(() => {
+                            res.status(200).send("deleted succesfully..")
+                        }).catch(() => {
+                            res.status(400).send("sorrry errror while deleting profile")
+                        })
+                    }).catch(() => {
+                        res.status(400).send("sorrry errro in mongodb ")
+                    })
+                }
+                else {
+                    res.status(400).send("please fill correct otp")
+                }
+
+            }
+            else {
+                res.status(400).send("sorrry errror in mongodb..")
+            }
+        }
+        else {
+            res.status(400).send("sorrry bad request")
+        }
+    }
+    catch (e) {
+        res.status(400), send("sorry some errro occured please try again later..")
+    }
+
+
+})
 
 module.exports = router
 

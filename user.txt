@@ -1,0 +1,83 @@
+User    section	  Status	  descrption	   integration	  remark
+
+1)Authentication				
+********************* auth/register	
+Public	
+api for register user	
+Done	
+Done
+
+********************* auth/verifyotp	
+private	
+api to verify otp entered by user	
+Done	
+Done
+
+********************* auth/resendotp	
+private	api to resend otp if otp expired	
+Done	
+Done
+
+********************* auth/login	
+public	
+api for login user and get access and data token	
+Done	
+Done
+
+********************* auth/forgotpassword	
+public	
+forgot password route for user	
+
+********************* auth/resetpassword	
+private
+reset password route for user		
+				
+2)Searching Apis List				
+********************* auth/getalluserdetails	
+private	
+api to get all details of a user 
+
+********************* auth/getusercontactdetails	
+private	api to get 	contact details odf user	
+
+********************* auth/normalsearch	
+public	
+api to get profile details for user normal search
+
+********************* auth/advancesearch	
+public	
+api to get profile details with advance search		
+				
+3)Api to get remaining details of the user				
+********************* auth/getbasicinfouser	
+private	
+api to get basic details of user	
+done	
+done
+
+********************* auth/getfamilydetails	
+private	
+api to get family details of user	
+done	
+done
+
+********************* auth/getpartnerprefrence	
+private	
+api to get partner preference details of user	
+done	
+done
+
+********************* auth/gethoroscopedetails	
+private	
+api to get horoscope details of user	
+done	
+done
+				
+4)Delete User Profile 				
+********************* auth/senddeletepreviewemale	
+private	
+api which send the mail to email and otp for deletion		
+
+********************* auth/deleteprofile	
+private	
+api which gets otp and delets the user profile		

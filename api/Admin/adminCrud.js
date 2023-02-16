@@ -12,6 +12,7 @@ const cheackNormaladmin = require("../../Middlewears/cheackNormaladmin")
 const cheackRecharge = require("../../Middlewears/cheackRecharge");
 const Stories = require("../../Models/Stories");
 const Queries = require("../../Models/Queries");
+const Plans = require("../../Models/Plans")
 //const getAccesstoken = require("../../Functions/getaccessToken");
 //const getDatatoken = require("../../Functions/getDatatoken");
 
@@ -51,7 +52,7 @@ router.post('/createadmin', adminAuthorizaton, async (req, res) => {
 })
 
 //delete addmin
-router.get("/deleteadmin", adminAuthorizaton, (req, res) => {
+router.post("/deleteadmin", adminAuthorizaton, (req, res) => {
     const { id } = req.body
     AdminModel.findByIdAndDelete(id).then(() => {
         res.status(200).send("admin deleted succesfully..")
@@ -61,15 +62,85 @@ router.get("/deleteadmin", adminAuthorizaton, (req, res) => {
     })
 
 })
+//get all admin details
+router.get("/getalladmins", async (req, res) => {
+    try {
+        const data = await AdminModel.find()
+        res.status(200).send(data)
+    }
+    catch (e) {
+        console.log(e)
+        res.status(400).send("sorry some errro occured..")
+
+    }
+})
+
+//get all users for users table
+router.get("/getallusersfortable", async (req, res) => {
+
+    try {
+        UserModel.find({}, { email: 1, coins: 1, firstname: 1, rechargeDate: 1, rechargExpireDate: 1 }).then((val) => {
+            res.status(200).send(val)
+        }).catch((err) => {
+            res.status(400).send(err)
+        });
+    }
+    catch (e) {
+        console.log(e)
+        res.status(400).send("sorry error in mongodb...")
+
+    }
+})
+
+//admin can search a specific profile based on email or firstname
+router.post("/getspecificuser", async (req, res) => {
+    const { name, email } = req.body
+    // console.log(req.body)
+    try {
+        const result = await UserModel.find({ $or: [{ email: { $regex: email, $options: 'i' } }, { firstname: { $regex: name, $options: 'i' } }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
+        res.send(result)
+    }
+    catch (e) {
+        console.log(e)
+        res.status(400).send('sorry errror found..')
+    }
+
+})
+
+//get unpaid users 
+router.get("/getunpaidusers", async (req, res) => {
+    try {
+        const data = await UserModel.find({ coins: 0 }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 });
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry error in mongodb...")
+
+    }
+})
+
+//get paid users 
+router.get("/getpaidusers", async (req, res) => {
+    try {
+        const data = await UserModel.find({ coins: { $gt: 0 } }, { email: 1, coins: 1, firstname: 1 });
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry error in mongodb...")
+
+    }
+})
 
 //admin login
 router.post("/loginadmin", async (req, res) => {
     const { email, password } = req.body
+    console.log(req.body)
     try {
         //find user
         const admindata = await AdminModel.findOne({ email })
-
+        console.log(admindata)
         if (admindata) {
+
             //compare the hashed passwrod and input password
             bcrypt.compare(password, admindata.password).then(async (correct) => {
                 if (correct) {
@@ -183,6 +254,7 @@ router.post("/addstories", async (req, res) => {
     }
 
 })
+
 //Read:get all stories
 router.get("/getstories", async (req, res) => {
     try {
@@ -194,7 +266,6 @@ router.get("/getstories", async (req, res) => {
 
     }
 })
-
 
 //Update: perticular story
 router.post("/updatestories", async (req, res) => {
@@ -215,7 +286,7 @@ router.post("/updatestories", async (req, res) => {
             men,
             women
         }).then(async (val1) => {
-            const split1 = val1.url.split("/").pop()
+            const split1 = val1.image.split("/").pop()
             try {
                 //delete image from cloudinary
                 await cloudinary.uploader.destroy(split1.split(".")[0])
@@ -231,11 +302,23 @@ router.post("/updatestories", async (req, res) => {
     }
 })
 
+//get story by id
+router.post("/getonestory", async (req, res) => {
+    const { id } = req.body
+    try {
+        const data = await Stories.findById(id);
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry some errror errro occured...")
+    }
+})
+
 //Delete:delete perticular story from database
 router.post("/deletestory", (req, res) => {
     const { id } = req.body
     Stories.findByIdAndDelete(id).then(async (val1) => {
-        const split1 = val1.url.split("/").pop()
+        const split1 = val1.image.split("/").pop()
         try {
             //delete image from cloudinary
             await cloudinary.uploader.destroy(split1.split(".")[0])
@@ -244,23 +327,38 @@ router.post("/deletestory", (req, res) => {
         catch (e) {
             res.status(400).send("sorry seome error occurs in cloudinary")
         }
-    }).catch(() => {
+    }).catch((err) => {
         res.status(400).send("sorrry some error found in mongodb")
     })
 })
 
 //get customer queries 
-router.post("/getqueries", (req, res) => {
-    const { name, email, contact, message } = req.body;
-    const newQuery = Queries({
-        name, email, contact, message
-    })
-    newQuery.save().then(() => [
-        res.status(200).send("query added succesfully..")
-    ]).catch(() => {
-        res.status(400).send("sorry query not added...")
-    })
+// router.post("/getqueries", (req, res) => {
+//     const { name, email, contact, message } = req.body;
+//     const newQuery = Queries({
+//         name, email, contact, message
+//     })
+//     newQuery.save().then(() => [
+//         res.status(200).send("query added succesfully..")
+//     ]).catch(() => {
+//         res.status(400).send("sorry query not added...")
+//     })
 
+// })
+//Getting details from contact form
+router.post('/getqueries', (req, res) => {
+    const { name, email, message, contact } = req.body;
+    const Details = new Queries({
+        name, email, message, contact, createdAt: {
+            date: new Date().toDateString(),
+            time: new Date().toLocaleTimeString()
+        }
+    })
+    Details.save().then(() => {
+        res.status(200).send("form details submitted succesfully...")
+    }).catch(() => {
+        res.status(400).send("error in contact form")
+    })
 })
 //send customer queries back
 router.get('/customerqueries', (req, res) => {
@@ -274,8 +372,7 @@ router.get('/customerqueries', (req, res) => {
 
 //********* normal admin can create users without email verification */
 //1.get register informaton
-//route to register a user
-router.post('/register', async (req, res) => {
+router.post('/register', adminAuthorizaton, async (req, res) => {
     const { firstname, email, mobile, password, lastname, gender } = req.body
 
     //generate secure hashed password
@@ -298,9 +395,12 @@ router.post('/register', async (req, res) => {
 })
 
 //2.gettting basic info
-router.post('/getbasicinfo', (req, res) => {
-
-    const { email,
+router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
+    const {
+        image1,
+        image2,
+        image3,
+        email,
         height,
         weight,
         bloodGroup,
@@ -321,10 +421,15 @@ router.post('/getbasicinfo', (req, res) => {
         state_name,
         city_name,
         taluka,
-        district } = req.body;
+        district,
+        mother_tongue } = req.body;
 
-    // //update only necossory fields in database    
-    User.updateOne({ email }, {
+    const responseCloud1 = await cloudinary.uploader.upload(image1)
+    const responseCloud2 = await cloudinary.uploader.upload(image2)
+    const responseCloud3 = await cloudinary.uploader.upload(image3)
+
+    //update only necossory fields in database    
+    User.findByIdAndUpdate({ email }, {
         $set: {
             profile_completed: 50,
             height,
@@ -332,6 +437,7 @@ router.post('/getbasicinfo', (req, res) => {
             bloodGroup,
             education,
             occupation,
+            mother_tongue,
             salaryPA,
             dob,
             birth_time,
@@ -347,7 +453,10 @@ router.post('/getbasicinfo', (req, res) => {
             state_name,
             city_name,
             taluka,
-            district
+            district,
+            image1: responseCloud1.url,
+            image2: responseCloud2.url,
+            image3: responseCloud3.url
         }
     },).then(async () => {
         res.status(200).send("basic details submited succesfully..")
@@ -359,7 +468,8 @@ router.post('/getbasicinfo', (req, res) => {
 
 //3.getting family details
 router.post("/getfamilydetails", (req, res) => {
-    const { email,
+    const {
+        email,
         fathers_name,
         fathers_occupation,
         mothers_name,
@@ -371,10 +481,11 @@ router.post("/getfamilydetails", (req, res) => {
         vehicle } = req.body;
 
     //update only necossory fields in database    
-    User.updateOne({ email }, {
+    User.findByIdAndUpdate({ email }, {
         $set: {
             fathers_name,
-            fathers_occupation, profile_completed: 50,
+            fathers_occupation,
+            profile_completed: 70,
             mothers_name,
             mothers_occupation,
             bother_select,
@@ -390,11 +501,44 @@ router.post("/getfamilydetails", (req, res) => {
     })
 
 });
+//3.partner prefrence
+router.post('/getpartnerprefrence', (req, res) => {
+    const {
+        email,
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref } = req.body
+    User.findByIdAndUpdate({ email }, {
+        $set: {
+            education_pref,
+            occupation_pref,
+            salary_pref,
+            complexion_pref,
+            height_pref,
+            religion_pref,
+            caste_pref,
+            state_pref,
+            location_pref,
+            profile_completed: 100,
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send("partner prefrence details added succesfully...")
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
 
-//4 getting horoscope details (optional)
+
+})
+//4.getting horoscope details (optional)
 router.post('/gethoroscopedetails', (req, res) => {
     const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
-    User.updateOne({ email }, {
+    User.findByIdAndUpdate({ email }, {
         $set: {
             rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
         }
@@ -404,5 +548,80 @@ router.post('/gethoroscopedetails', (req, res) => {
         res.status(400).send("sorry some error occured")
     })
 })
+
+//Update User Profile 
+router.post('/updateuserprofile', (req, res) => {
+
+})
+
+//**************crud for plans *********************/
+//Create:
+router.post("/createplan", (req, res) => {
+    const { price, expiresinMonths, mediator, services, contact_count } = req.body
+    const newservices = JSON.parse(services);
+    const planmodel = new Plans({
+        price, expiresinMonths, mediator, services: newservices, contact_count
+    })
+    planmodel.save().then((val) => {
+        res.status(200).send("new plan created succesfully")
+    }).catch((err) => {
+        res.status(400).send("sorry some errro occured")
+    })
+})
+
+//Read
+router.get('/getallplans', async (req, res) => {
+    try {
+        const data = await Plans.find();
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry some errro occured")
+
+    }
+
+})
+
+//update
+router.post("/updateplan", (req, res) => {
+    const { id, price, expiresinMonths, mediator, services, contact_count } = req.body
+    const newservices = JSON.parse(services);
+    Plans.findByIdAndUpdate(id, {
+        price,
+        expiresinMonths,
+        mediator,
+        services: newservices,
+        contact_count
+    }).then(() => {
+        res.status(200).send("plan updated succesfull...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while updating...")
+    })
+})
+
+//delete
+router.post("/deleteplan", (req, res) => {
+    const { id } = req.body;
+    Plans.findByIdAndDelete(id).then(() => {
+        res.status(200).send("plan deleted succesfully..")
+    }).catch(() => {
+        res.status(400).send("sorry plan not deleted..")
+    })
+})
+
+//get single plan
+router.post("/getsingleplan", (req, res) => {
+    const { id } = req.body
+    try {
+        const data = Plans.findById(id)
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry plan not found...")
+    }
+})
+//**************crud for plans end *********************/
+
+
 
 module.exports = router

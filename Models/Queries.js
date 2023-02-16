@@ -1,9 +1,11 @@
-const mongoose = require("mongoose");
-const queriesDetails = new mongoose.Schema({
+// Schema to get details from user form
+const mongoose = require("mongoose")
+let formSheama = new mongoose.Schema({
     name: String,
     email: String,
-    mobile: String,
-    message: String
+    message: String,
+    contact: String,
+    createdAt: Object
 })
 
-module.exports = mongoose.model("queries", queriesDetails)
+module.exports = mongoose.model("queries", formSheama)
