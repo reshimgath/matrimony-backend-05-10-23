@@ -621,6 +621,17 @@ router.post("/getsingleplan", async (req, res) => {
         res.status(400).send("sorry plan not found...")
     }
 })
+
+//getplan names only
+router.get("/getplannamesonly", async (req, res) => {
+    try {
+        const data = await Plans.find({}, { price: 1 })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry some errror occured")
+    }
+})
 //**************crud for plans end *********************/
 
 
