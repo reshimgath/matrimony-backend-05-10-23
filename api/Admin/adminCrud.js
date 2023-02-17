@@ -610,13 +610,14 @@ router.post("/deleteplan", (req, res) => {
 })
 
 //get single plan
-router.post("/getsingleplan", (req, res) => {
+router.post("/getsingleplan", async (req, res) => {
     const { id } = req.body
     try {
-        const data = Plans.findById(id)
+        const data = await Plans.findById(id)
         res.status(200).send(data)
     }
     catch (e) {
+        console.log(e)
         res.status(400).send("sorry plan not found...")
     }
 })
