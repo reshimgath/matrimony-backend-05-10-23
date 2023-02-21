@@ -113,6 +113,10 @@ let usermodel = new mongoose.Schema({
     mother_tongue: {
         type: String
     },
+    addressLine1: {
+        type: String,
+        default: ""
+    },
     addressLine2: {
         type: String,
         default: ""
@@ -186,7 +190,8 @@ let usermodel = new mongoose.Schema({
         type: String
     }
     , mangal: {
-        type: Boolean
+        type: Boolean,
+        default: false
     }
     , charan: {
         type: String

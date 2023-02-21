@@ -13,6 +13,7 @@ const cheackRecharge = require("../../Middlewears/cheackRecharge");
 const Stories = require("../../Models/Stories");
 const Queries = require("../../Models/Queries");
 const Plans = require("../../Models/Plans")
+const RechargeEmail = require("../../Functions/rechargeConfirm")
 //const getAccesstoken = require("../../Functions/getaccessToken");
 //const getDatatoken = require("../../Functions/getDatatoken");
 
@@ -97,7 +98,9 @@ router.post("/getspecificuser", async (req, res) => {
     const { name, email } = req.body
     // console.log(req.body)
     try {
-        const result = await UserModel.find({ $or: [{ email: { $regex: email, $options: 'i' } }, { firstname: { $regex: name, $options: 'i' } }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
+        // const result = await UserModel.find({ $or: [{ email: { $regex: email, $options: 'i' } }, { firstname: { $regex: name, $options: 'i' } }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
+        const result = await UserModel.find({ $or: [{ email: email }, { firstname: name }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
+
         res.send(result)
     }
     catch (e) {
@@ -122,7 +125,7 @@ router.get("/getunpaidusers", async (req, res) => {
 //get paid users 
 router.get("/getpaidusers", async (req, res) => {
     try {
-        const data = await UserModel.find({ coins: { $gt: 0 } }, { email: 1, coins: 1, firstname: 1 });
+        const data = await UserModel.find({ coins: { $gt: 0 } }, { email: 1, coins: 1, firstname: 1, rechargeDate: 1, rechargExpireDate: 1 });
         res.status(200).send(data)
     }
     catch (e) {
@@ -161,10 +164,10 @@ router.post("/loginadmin", async (req, res) => {
 })
 
 //admin can search a specific profile based on email or firstname
-router.get("/getspecificuser", cheackNormaladmin, async (req, res) => {
-    const { name, email } = req.query
+router.post("/getallsingleprofiledetails", async (req, res) => {
+    const { email } = req.body
     try {
-        const result = await UserModel.find({ $or: [{ email: email }, { firstname: name }] })
+        const result = await UserModel.findOne({ email })
         res.send(result)
     }
     catch (e) {
@@ -197,7 +200,10 @@ router.post("/updatespecificuser", adminAuthorizaton, (req, res) => {
 
 //admin can recharge a profile
 router.post("/rechargeuser", async (req, res) => {
-    const { email, coins, plan, days } = req.body
+    const { firstname, email, coins, plan, days, details } = req.body
+    // console.log(req.body)
+    const finalplan = JSON.parse(details)
+
     const rid = uuidv4();
     const recharge = new Reacharges({ email, plan, rechargeDate: Date.now(), expireDate: Date.now() + days * 86400000, rechargeId: rid })
     recharge.save().then(() => {
@@ -208,7 +214,10 @@ router.post("/rechargeuser", async (req, res) => {
                 rechargExpireDate: Date.now() + days * 86400000
             }
         }).then(() => {
-            res.status(200).send("recharge succsessfull...thanks... !")
+            RechargeEmail(email, plan, firstname, finalplan).then(() => {
+                res.status(200).send("recharge succsessfull...thanks... !")
+            }).catch((er) => {
+            })
         }).catch(() => {
             res.status(400).send("sorry errro while recharging....")
         })
@@ -372,7 +381,7 @@ router.get('/customerqueries', (req, res) => {
 
 //********* normal admin can create users without email verification */
 //1.get register informaton
-router.post('/register', adminAuthorizaton, async (req, res) => {
+router.post('/register', async (req, res) => {
     const { firstname, email, mobile, password, lastname, gender } = req.body
 
     //generate secure hashed password
@@ -380,7 +389,7 @@ router.post('/register', adminAuthorizaton, async (req, res) => {
     const secpass = await bcrypt.hash(password, salt)
 
     //otp generator
-    const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    // const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 
     //create user instance
     UserModel.create({
@@ -388,14 +397,15 @@ router.post('/register', adminAuthorizaton, async (req, res) => {
         profile_completed: 20
     }).then((val1) => {
         res.status(200).send("registartion details submited succesfully..")
-    }).catch(() => {
+    }).catch((e) => {
+        console.log(e)
         res.status(400).send("sorry useralready exist..")
     })
 
 })
 
 //2.gettting basic info
-router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
+router.post('/getbasicinfo', async (req, res) => {
     const {
         image1,
         image2,
@@ -416,6 +426,7 @@ router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
         disablity,
         maritalStatus,
         childrens_count,
+        addressLine1,
         addressLine2,
         country_name,
         state_name,
@@ -423,13 +434,13 @@ router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
         taluka,
         district,
         mother_tongue } = req.body;
-
+    // console.log(req.body)
     const responseCloud1 = await cloudinary.uploader.upload(image1)
     const responseCloud2 = await cloudinary.uploader.upload(image2)
     const responseCloud3 = await cloudinary.uploader.upload(image3)
 
     //update only necossory fields in database    
-    User.findByIdAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email }, {
         $set: {
             profile_completed: 50,
             height,
@@ -448,6 +459,7 @@ router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
             disablity,
             maritalStatus,
             childrens_count,
+            addressLine1,
             addressLine2,
             country_name,
             state_name,
@@ -461,6 +473,7 @@ router.post('/getbasicinfo', adminAuthorizaton, async (req, res) => {
     },).then(async () => {
         res.status(200).send("basic details submited succesfully..")
     }).catch(() => {
+        // console.log(e)
         res.status(400).send("sorry some error occured")
 
     })
@@ -481,7 +494,7 @@ router.post("/getfamilydetails", (req, res) => {
         vehicle } = req.body;
 
     //update only necossory fields in database    
-    User.findByIdAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email }, {
         $set: {
             fathers_name,
             fathers_occupation,
@@ -495,7 +508,7 @@ router.post("/getfamilydetails", (req, res) => {
             vehicle
         }
     }, { new: true }).then(async (val1) => {
-        res.status(200).send("family details submited succesfully..")
+        res.status(200).send("family details submitted succesfully..")
     }).catch((err) => {
         res.status(400).send("sorry some error occured")
     })
@@ -514,7 +527,7 @@ router.post('/getpartnerprefrence', (req, res) => {
         caste_pref,
         state_pref,
         location_pref } = req.body
-    User.findByIdAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email }, {
         $set: {
             education_pref,
             occupation_pref,
@@ -532,19 +545,18 @@ router.post('/getpartnerprefrence', (req, res) => {
     }).catch((err) => {
         res.status(400).send("sorry some error occured")
     })
-
-
 })
 //4.getting horoscope details (optional)
 router.post('/gethoroscopedetails', (req, res) => {
     const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
-    User.findByIdAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email }, {
         $set: {
             rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
         }
     }, { new: true }).then(async (val1) => {
         res.status(200).send("horoscope details submited succesfully..")
     }).catch((err) => {
+        console.log(err)
         res.status(400).send("sorry some error occured")
     })
 })
@@ -634,6 +646,16 @@ router.get("/getplannamesonly", async (req, res) => {
 })
 //**************crud for plans end *********************/
 
+//get recharges done by the admin
+router.get("/gerrechargelist", async (req, res) => {
+    try {
+        const data = await Reacharges.find();
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errror occured...")
+    }
+})
 
 
 module.exports = router

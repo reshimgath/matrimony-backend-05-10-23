@@ -1,47 +1,63 @@
 const nodemailer = require("nodemailer");
 
-async function rechargeConfirm(email, plan, firstname, coins) {
+async function rechargeConfirm(email, plan, firstname, mydetails) {
+
   let transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
     port: 465,
     auth: {
-      user: "reshimgathvivah@gmail.com",
+      user: "mailto:reshimgathvivah@gmail.com",
       pass: "xdicchueyeaoounh",
     },
   });
   let info = await transporter.sendMail({
     to: email,
-    html: `  <div style="font-family: Helvetica,Arial,sans-serif;overflow:auto;line-height:2;">
-        <div style="margin:50px auto;width:70%;padding:20px 0">
-          <div style="border-bottom:1px solid #e12e56">
-            <a href="" style="font-size:1.4em;color: #e12e56;text-decoration:none;font-weight:600">Reshimgath</a>
-          </div>
-          <p style="font-size:1.1em">Hi ${firstname},</p>
-          <p>Congratulations! You are just one step away from getting your desired
-          life partner.</p>
-      
-          <p>Thank you for Registration. Use the following OTP to complete your Sign Up procedures. OTP is valid for 3 minutes.do not share with anyone.</p>
-          <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${otp}</h2>
-          <p style="font-size:0.9em;">Regards,<br />Team Reshimgath</p>
-          <hr style="border:none;border-top:1px solid #e12e56" />
-          <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-            <p>Reshimgath</p>
-            <p>some adress</p>
-            <p>Kolhapur</p>
-          </div>
-        </div>
-        <div>
-        <ul style="display:flex;gap:10px;list-style-type:none">
-        <li>8080579640 </li>
-        <li>9209298685</li>
-        <li>reshimgathmatrimony141@gmail.com</li>
-        <li>Website</li>
-        </ul>
-      </div>
-      </div>
-      </div>`,
-    subject: `Reshimgath One Time Password`,
+    html: `<div class="letter_main_div">
+    <h5 class="letter_p"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Dear
+        ${firstname}<br>
+        Greeting From Reshimgath!
+    </h5>
+    <h5 class="letter_p h5"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">We are
+        pleased to inform you that you have successfully opted for our<br>
+        <span class="letter_span" style="color: brown;">${plan}</span>
+    </h5>
+
+    <h5 class="letter_p h5"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">We
+        understand the importance of finding the perfect life partner and we
+        are committed to providing you with the best possible experience on our
+        platform. The ${plan} package offers you access to a wide range of features
+        and benefits that will help you in your search for your soulmate.</h5>
+    <h5 class="letter_p h5"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Some of
+        the key features of the ${plan} package include, <br>
+
+        ${mydetails.map((val) => {
+      `<span>${val}</span>`
+    })}
+    </h5>
+    <h5 class="letter_p"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">We believe
+        that these features will greatly enhance your experience and
+        increase your chances of finding your ideal partner.</h5>
+    <h5 class="letter_p"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">If you
+        have any questions or need assistance, please do not hesitate to
+        contact us. Our customer support team is available 24/7 to assist you.</h5>
+    <h5 class="letter_p"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Thank you
+        for choosing Reshimgath and we wish you all the best in your
+        search for your perfect match.
+    </h5>
+    <h5 class="letter_p"
+        style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Warm
+        regards,<br>
+        Reshimgath Team</h5>
+</div>`,
+    subject: `Love is in the Air: Your Matrimony Account has been Recharged!`,
   });
 }
 
