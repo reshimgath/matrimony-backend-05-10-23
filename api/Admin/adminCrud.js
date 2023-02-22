@@ -171,7 +171,7 @@ router.post("/getallsingleprofiledetails", async (req, res) => {
         res.send(result)
     }
     catch (e) {
-        res.status(400).send('sorry errror found..')
+        res.status(400).send('sorry error found..')
     }
 
 }
@@ -562,7 +562,68 @@ router.post('/gethoroscopedetails', (req, res) => {
 })
 
 //Update User Profile 
-router.post('/updateuserprofile', (req, res) => {
+//Update User Profile 
+router.post('/updateuserprofile', async (req, res) => {
+    const {
+
+        //1.get register details
+        firstname, email, mobile, lastname, gender,
+        //2.gettting basic info
+        height, weight, bloodGroup, education, occupation, salaryPA, dob,
+        birth_time, birth_place, caste, subCaste, complexion, disablity,
+        maritalStatus, childrens_count, addressLine1, addressLine2, country_name, state_name,
+        city_name, taluka, district, mother_tongue, image1, image2, image3,
+        //3.family info
+        fathers_name, fathers_occupation, mothers_name, mothers_occupation,
+        bother_select, bother_status, sister_select, sister_status,
+        //4.partner prefrence
+        education_pref, occupation_pref, salary_pref, complexion_pref,
+        height_pref, religion_pref, caste_pref, state_pref, location_pref,
+        //5.horoscope details
+        rashi, nakshatra, mangal, charan, time_of_birth,
+        place_of_birth, nadi, devak, gan
+    } = req.body;
+
+    let responseCloud1
+    let responseCloud2
+    let responseCloud3
+    //cheack wheather user selected a image if not then set the image url directly to database
+    image1.split(":")[0] === 'data' ? responseCloud1 = await cloudinary.uploader.upload(image1) : (responseCloud1 = image1)
+    image2.split(":")[0] === 'data' ? responseCloud2 = await cloudinary.uploader.upload(image2) : (responseCloud2 = image2)
+    image3.split(":")[0] === 'data' ? responseCloud3 = await cloudinary.uploader.upload(image3) : (responseCloud3 = image3)
+
+
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            //1.gettting registration details
+            firstname, email, mobile, lastname, gender, profile_completed: 100,
+
+            //2.getting perosnal details
+            height, weight, bloodGroup, education,
+            occupation, mother_tongue, salaryPA, dob, birth_time, birth_place, caste,
+            subCaste, complexion, disablity, maritalStatus, childrens_count, addressLine1,
+            addressLine2, country_name, state_name, city_name, taluka, district,
+            image1: responseCloud1.url, image2: responseCloud2.url, image3: responseCloud3.url
+
+            //3.family details
+            , fathers_name, fathers_occupation, mothers_name,
+            mothers_occupation, bother_select, bother_status, sister_select, sister_status, vehicle
+
+            //4.partner prefrence
+            , education_pref, occupation_pref, salary_pref, complexion_pref,
+            height_pref, religion_pref, caste_pref, state_pref, location_pref,
+
+            //5.horoscope details
+            rashi, nakshatra, mangal, charan, time_of_birth,
+            place_of_birth, nadi, devak, gan
+        }
+    }).then(() => {
+        res.status(200).send("user updated succesfullyy...")
+    }).catch(() => {
+        res.status(400).send("sorrry errro while updation")
+    })
+
+
 
 })
 

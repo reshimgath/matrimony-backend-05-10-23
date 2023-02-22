@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 async function rechargeConfirm(email, plan, firstname, mydetails) {
-
+  const finaldetails = details.join("</br>")
   let transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -35,9 +35,7 @@ async function rechargeConfirm(email, plan, firstname, mydetails) {
         style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Some of
         the key features of the ${plan} package include, <br>
 
-        ${mydetails.map((val) => {
-      `<span>${val}</span>`
-    })}
+        ${finaldetails}
     </h5>
     <h5 class="letter_p"
         style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">We believe

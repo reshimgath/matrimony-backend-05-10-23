@@ -142,103 +142,142 @@ let usermodel = new mongoose.Schema({
         default: ""
     },
     image1: {
-        type: String
+        type: String,
+        default: ""
     },
     image2: {
-        type: String
+        type: String,
+        default: ""
     },
     image3: {
-        type: String
+        type: String,
+        default: ""
     },
 
     //****get family details***
     fathers_name: {
-        type: String
+        type: String,
+        default: ""
     },
     fathers_occupation: {
-        type: String
+        type: String,
+        default: ""
     },
     mothers_name: {
-        type: String
+        type: String,
+        default: ""
     },
     mothers_occupation: {
-        type: String
+        type: String,
+        default: ""
     },
     bother_select: {
-        type: String
+        type: String,
+        default: ""
     },
     bother_status: {
-        type: String
+        type: String,
+        default: ""
     },
     sister_select: {
-        type: String
+        type: String,
+        default: ""
     },
     sister_status: {
-        type: String
+        type: String,
+        default: ""
     },
-    vehicle: {
-        type: String
-    }
-    ,
-
+    own_house: {
+        type: String,
+        default: ""
+    },
+    own_farm: {
+        type: String,
+        default: ""
+    },
+    own_plot: {
+        type: String,
+        default: ""
+    },
+    other_prop: {
+        type: String,
+        default: ""
+    },
     //Horoscope details
     rashi: {
-        type: String
+        type: String,
+        default: ""
 
     }
     , nakshatra: {
-        type: String
+        type: String,
+        default: ""
     }
     , mangal: {
         type: Boolean,
         default: false
     }
     , charan: {
-        type: String
+        type: String,
+        default: ""
     }
     , time_of_birth: {
-        type: String
+        type: String,
+        default: ""
     },
     place_of_birth: {
-        type: String
+        type: String,
+        default: ""
     }
     , nadi: {
-        type: String
+        type: String,
+        default: ""
     },
     devak: {
-        type: String
+        type: String,
+        default: ""
     },
     gan: {
-        type: String
+        type: String,
+        default: ""
     },
 
     //partner prefrence
     education_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     occupation_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     salary_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     complexion_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     height_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     religion_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     caste_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     state_pref: {
-        type: String
+        type: String,
+        default: ""
     },
     location_pref: {
-        type: String
+        type: String,
+        default: ""
     },
 })
 
