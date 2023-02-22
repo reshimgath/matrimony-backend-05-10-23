@@ -562,7 +562,6 @@ router.post('/gethoroscopedetails', (req, res) => {
 })
 
 //Update User Profile 
-//Update User Profile 
 router.post('/updateuserprofile', async (req, res) => {
     const {
 
