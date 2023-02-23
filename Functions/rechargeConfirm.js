@@ -1,7 +1,9 @@
 const nodemailer = require("nodemailer");
 
 async function rechargeConfirm(email, plan, firstname, mydetails) {
-  const finaldetails = details.join("</br>")
+
+  const finaldetails = mydetails.join("<br>")
+
   let transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -33,7 +35,7 @@ async function rechargeConfirm(email, plan, firstname, mydetails) {
         and benefits that will help you in your search for your soulmate.</h5>
     <h5 class="letter_p h5"
         style="text-align: justify; font: bolder; margin-top: 20px; padding-left: 10px; padding-right: 10px;">Some of
-        the key features of the ${plan} package include, <br>
+        the key features of the ${plan} package include, </br>
 
         ${finaldetails}
     </h5>

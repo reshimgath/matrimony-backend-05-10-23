@@ -549,6 +549,7 @@ router.post('/getpartnerprefrence', (req, res) => {
 //4.getting horoscope details (optional)
 router.post('/gethoroscopedetails', (req, res) => {
     const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
+
     UserModel.findOneAndUpdate({ email }, {
         $set: {
             rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan
@@ -575,6 +576,7 @@ router.post('/updateuserprofile', async (req, res) => {
         //3.family info
         fathers_name, fathers_occupation, mothers_name, mothers_occupation,
         bother_select, bother_status, sister_select, sister_status,
+        own_house, own_farm, own_plot, other_prop,
         //4.partner prefrence
         education_pref, occupation_pref, salary_pref, complexion_pref,
         height_pref, religion_pref, caste_pref, state_pref, location_pref,
@@ -606,7 +608,8 @@ router.post('/updateuserprofile', async (req, res) => {
 
             //3.family details
             , fathers_name, fathers_occupation, mothers_name,
-            mothers_occupation, bother_select, bother_status, sister_select, sister_status, vehicle
+            mothers_occupation, bother_select, bother_status, sister_select, sister_status,
+            own_house, own_farm, own_plot, other_prop
 
             //4.partner prefrence
             , education_pref, occupation_pref, salary_pref, complexion_pref,
@@ -623,6 +626,186 @@ router.post('/updateuserprofile', async (req, res) => {
     })
 
 
+
+})
+//updating user profile by breking all the forms
+
+//getting only register related details
+router.post("/getregisterdetailsupdate", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const data = await UserModel.findOne({ email }, { firstname: 1, email: 1, mobile: 1, lastname: 1, gender: 1, profile_completed: 1 })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errro occured while registerupdate.")
+    }
+})
+//getting only personal related details
+router.post("/getpersonaldetailsupdate", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const data = await UserModel.findOne({ email }, {
+            height: 1, weight: 1, bloodGroup: 1, education: 1, occupation: 1, salaryPA: 1, dob: 1,
+            birth_time: 1, birth_place: 1, caste: 1, subCaste: 1, complexion: 1, disablity: 1,
+            maritalStatus: 1, childrens_count: 1, addressLine1: 1, addressLine2: 1, country_name: 1, state_name: 1,
+            city_name: 1, taluka: 1, district: 1, mother_tongue: 1, image1: 1, image2: 1, image3: 1
+        })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errro occured while personalupdate.")
+    }
+})
+//getting only family related details
+router.post("/getfamilydetailsupdate", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const data = await UserModel.findOne({ email }, {
+            fathers_name: 1, fathers_occupation: 1, mothers_name: 1, mothers_occupation: 1,
+            bother_select: 1, bother_status: 1, sister_select: 1, sister_status: 1,
+            own_house: 1, own_farm: 1, own_plot: 1, other_prop: 1
+        })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errro occured while familyupdate.")
+    }
+})
+//getting only partner related details
+router.post("/getpartnerdetailsupdate", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const data = await UserModel.findOne({ email }, {
+            education_pref: 1, occupation_pref: 1, salary_pref: 1, complexion_pref: 1,
+            height_pref: 1, religion_pref: 1, caste_pref: 1, state_pref: 1, location_pref: 1
+        })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errro occured while partnerupdate.")
+    }
+})
+//getting horoscope details
+router.post("/gethoroscopedetailsupdate", async (req, res) => {
+    const { email } = req.body;
+    try {
+        const data = await UserModel.findOne({ email }, {
+            rashi: 1, nakshatra: 1, mangal: 1, charan: 1, time_of_birth: 1,
+            place_of_birth: 1, nadi: 1, devak: 1, gan: 1
+        })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errro occured while partnerupdate.")
+    }
+})
+
+//**************update details 
+//post only register related details
+//family details
+router.post("/updateregisterdetails", (req, res) => {
+    const {
+        firstname, email, mobile, lastname, gender, } = req.body
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            firstname, email, mobile, lastname, gender, profile_completed: 100,
+        }
+    }).then(() => {
+        res.status(200).send("register details updated succesfully...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while register updating..")
+    })
+
+})
+//basic info
+router.post("/updatebasicdetails", async (req, res) => {
+    const {
+        //2.gettting basic info
+        email,
+        height, weight, bloodGroup, education, occupation, salaryPA, dob,
+        birth_time, birth_place, caste, subCaste, complexion, disablity,
+        maritalStatus, childrens_count, addressLine1, addressLine2, country_name, state_name,
+        city_name, taluka, district, mother_tongue, image1, image2, image3, } = req.body
+    let responseCloud1
+    let responseCloud2
+    let responseCloud3
+    //cheack wheather user selected a image if not then set the image url directly to database
+    image1.split(":")[0] === 'data' ? responseCloud1 = await cloudinary.uploader.upload(image1) : (responseCloud1 = image1)
+    image2.split(":")[0] === 'data' ? responseCloud2 = await cloudinary.uploader.upload(image2) : (responseCloud2 = image2)
+    image3.split(":")[0] === 'data' ? responseCloud3 = await cloudinary.uploader.upload(image3) : (responseCloud3 = image3)
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            //2.getting perosnal details
+            height, weight, bloodGroup, education,
+            occupation, mother_tongue, salaryPA, dob, birth_time, birth_place, caste,
+            subCaste, complexion, disablity, maritalStatus, childrens_count, addressLine1,
+            addressLine2, country_name, state_name, city_name, taluka, district,
+            image1: responseCloud1.url, image2: responseCloud2.url, image3: responseCloud3.url
+        }
+    }).then(() => {
+        res.status(200).send("register details updated succesfully...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while register updating..")
+    })
+
+})
+
+//family details
+router.post("/updatefamilydetails", (req, res) => {
+    const { email,
+        fathers_name, fathers_occupation, mothers_name, mothers_occupation,
+        bother_select, bother_status, sister_select, sister_status,
+        own_house, own_farm, own_plot, other_prop } = req.body
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            fathers_name, fathers_occupation, mothers_name,
+            mothers_occupation, bother_select, bother_status, sister_select, sister_status,
+            own_house, own_farm, own_plot, other_prop
+        }
+    }).then(() => {
+        res.status(200).send("family details updated succesfully...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while family updating..")
+    })
+
+})
+
+//partner prefrence
+router.post("/updatepartnerdetails", (req, res) => {
+    const { email,
+        education_pref, occupation_pref, salary_pref, complexion_pref,
+        height_pref, religion_pref, caste_pref, state_pref, location_pref, } = req.body
+
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            education_pref, occupation_pref, salary_pref, complexion_pref,
+            height_pref, religion_pref, caste_pref, state_pref, location_pref,
+        }
+    }).then(() => {
+        res.status(200).send("family details updated succesfully...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while partner prefrnece updating..")
+    })
+
+})
+
+//horoscop details
+router.post("/updatehoroscopedetails", (req, res) => {
+    const { email,
+        rashi, nakshatra, mangal, charan, time_of_birth,
+        place_of_birth, nadi, devak, gan } = req.body
+
+    UserModel.findOneAndUpdate({ email }, {
+        $set: {
+            rashi, nakshatra, mangal, charan, time_of_birth,
+            place_of_birth, nadi, devak, gan
+        }
+    }).then(() => {
+        res.status(200).send("family details updated succesfully...")
+    }).catch(() => {
+        res.status(400).send("sorry errro while partner prefrnece updating..")
+    })
 
 })
 
