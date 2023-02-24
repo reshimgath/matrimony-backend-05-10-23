@@ -70,7 +70,7 @@ router.get("/getalladmins", async (req, res) => {
         res.status(200).send(data)
     }
     catch (e) {
-        console.log(e)
+        // console.log(e)
         res.status(400).send("sorry some errro occured..")
 
     }
@@ -137,7 +137,7 @@ router.get("/getpaidusers", async (req, res) => {
 //admin login
 router.post("/loginadmin", async (req, res) => {
     const { email, password } = req.body
-    console.log(req.body)
+    // console.log(req.body)
     try {
         //find user
         const admindata = await AdminModel.findOne({ email })
@@ -271,6 +271,7 @@ router.get("/getstories", async (req, res) => {
         res.status(200).send(data)
     }
     catch (e) {
+        console.log(e)
         res.status(400).send("sorrry some errror in mongodb..")
 
     }
@@ -341,6 +342,8 @@ router.post("/deletestory", (req, res) => {
     })
 })
 
+
+
 //get customer queries 
 // router.post("/getqueries", (req, res) => {
 //     const { name, email, contact, message } = req.body;
@@ -354,6 +357,7 @@ router.post("/deletestory", (req, res) => {
 //     })
 
 // })
+
 //Getting details from contact form
 router.post('/getqueries', (req, res) => {
     const { name, email, message, contact } = req.body;
@@ -399,7 +403,7 @@ router.post('/register', async (req, res) => {
         res.status(200).send("registartion details submited succesfully..")
     }).catch((e) => {
         console.log(e)
-        res.status(400).send("sorry useralready exist..")
+        res.status(400).send("sorry user already exist..")
     })
 
 })
@@ -701,6 +705,17 @@ router.post("/gethoroscopedetailsupdate", async (req, res) => {
     }
 })
 
+//delted profiles from user side
+router.get('/getdeletedprofiles', async (req, res) => {
+    try {
+        const data = await Deleted.find()
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry error getting deletd profiles ")
+    }
+
+})
 //**************update details 
 //post only register related details
 //family details

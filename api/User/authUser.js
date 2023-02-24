@@ -62,7 +62,8 @@ router.post('/register', async (req, res) => {
         }).catch(() => {
             res.status(400).send("sorry error in otp creation..")
         })
-    }).catch(() => {
+    }).catch((e) => {
+        console.log(e)
         res.status(400).send("sorry useralready exist..")
     })
 
@@ -220,11 +221,14 @@ router.post('/forgotpassword', async (req, res) => {
         $set: {
             secure_password: secpass
         }
-    }).then(() => {
-        forgotpassword(email).then("new password sent succesfully....").catch((err) => {
+    }).then((val) => {
+        forgotpassword(email, val.firstname, password).then((respo) => {
+            res.status(200).send('new password sent succesfully....')
+        }).catch((err) => {
             res.status(400).send("sorry error while sending mail....")
         })
-    }).catch(() => {
+    }).catch((e) => {
+
         res.status(400).send("internal server error......")
     })
 
@@ -341,6 +345,19 @@ router.post("/advancesearch", async (req, res) => {
     }
     catch (e) {
         res.status(400).send("sorry some errror occured..")
+
+    }
+
+})
+
+//api to get latest created profiles
+router.get("/getrecentprofiles", async (req, res) => {
+    try {
+        let data = await UserModel.find({}, { image1: 1, education: 1, firstname: 1 }).limit(6).exec();
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorry some errror occured...")
 
     }
 
@@ -586,5 +603,15 @@ router.post('/deleteprofile', async (req, res) => {
 
 })
 
+//getting single profile details
+router.get('/getsingleprofileofuser', Authorizaton, async (req, res) => {
+    try {
+        const data = await UserModel.findOne({ email: req.email }, { verified: 0, secure_password: 0, coins: 0, })
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry cant get profile..")
+    }
+})
 module.exports = router
 
