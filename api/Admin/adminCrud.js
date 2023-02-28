@@ -58,7 +58,6 @@ router.post("/deleteadmin", adminAuthorizaton, (req, res) => {
     AdminModel.findByIdAndDelete(id).then(() => {
         res.status(200).send("admin deleted succesfully..")
     }).catch((err) => {
-        console.log(err)
         res.status(400).send("sorrry user not deleted..")
     })
 
@@ -70,7 +69,6 @@ router.get("/getalladmins", async (req, res) => {
         res.status(200).send(data)
     }
     catch (e) {
-        // console.log(e)
         res.status(400).send("sorry some errro occured..")
 
     }
@@ -87,7 +85,6 @@ router.get("/getallusersfortable", async (req, res) => {
         });
     }
     catch (e) {
-        console.log(e)
         res.status(400).send("sorry error in mongodb...")
 
     }
@@ -96,7 +93,6 @@ router.get("/getallusersfortable", async (req, res) => {
 //admin can search a specific profile based on email or firstname
 router.post("/getspecificuser", async (req, res) => {
     const { name, email } = req.body
-    // console.log(req.body)
     try {
         // const result = await UserModel.find({ $or: [{ email: { $regex: email, $options: 'i' } }, { firstname: { $regex: name, $options: 'i' } }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
         const result = await UserModel.find({ $or: [{ email: email }, { firstname: name }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
@@ -104,7 +100,6 @@ router.post("/getspecificuser", async (req, res) => {
         res.send(result)
     }
     catch (e) {
-        console.log(e)
         res.status(400).send('sorry errror found..')
     }
 
@@ -137,11 +132,9 @@ router.get("/getpaidusers", async (req, res) => {
 //admin login
 router.post("/loginadmin", async (req, res) => {
     const { email, password } = req.body
-    // console.log(req.body)
     try {
         //find user
         const admindata = await AdminModel.findOne({ email })
-        console.log(admindata)
         if (admindata) {
 
             //compare the hashed passwrod and input password
@@ -201,7 +194,6 @@ router.post("/updatespecificuser", adminAuthorizaton, (req, res) => {
 //admin can recharge a profile
 router.post("/rechargeuser", async (req, res) => {
     const { firstname, email, coins, plan, days, details } = req.body
-    // console.log(req.body)
     const finalplan = JSON.parse(details)
 
     const rid = uuidv4();
@@ -271,7 +263,6 @@ router.get("/getstories", async (req, res) => {
         res.status(200).send(data)
     }
     catch (e) {
-        console.log(e)
         res.status(400).send("sorrry some errror in mongodb..")
 
     }
@@ -402,7 +393,6 @@ router.post('/register', async (req, res) => {
     }).then((val1) => {
         res.status(200).send("registartion details submited succesfully..")
     }).catch((e) => {
-        console.log(e)
         res.status(400).send("sorry user already exist..")
     })
 
@@ -411,6 +401,7 @@ router.post('/register', async (req, res) => {
 //2.gettting basic info
 router.post('/getbasicinfo', async (req, res) => {
     const {
+        age,
         image1,
         image2,
         image3,
@@ -438,7 +429,6 @@ router.post('/getbasicinfo', async (req, res) => {
         taluka,
         district,
         mother_tongue } = req.body;
-    // console.log(req.body)
     const responseCloud1 = await cloudinary.uploader.upload(image1)
     const responseCloud2 = await cloudinary.uploader.upload(image2)
     const responseCloud3 = await cloudinary.uploader.upload(image3)
@@ -446,6 +436,7 @@ router.post('/getbasicinfo', async (req, res) => {
     //update only necossory fields in database    
     UserModel.findOneAndUpdate({ email }, {
         $set: {
+            age,
             profile_completed: 50,
             height,
             weight,
@@ -477,7 +468,6 @@ router.post('/getbasicinfo', async (req, res) => {
     },).then(async () => {
         res.status(200).send("basic details submited succesfully..")
     }).catch(() => {
-        // console.log(e)
         res.status(400).send("sorry some error occured")
 
     })
@@ -561,7 +551,6 @@ router.post('/gethoroscopedetails', (req, res) => {
     }, { new: true }).then(async (val1) => {
         res.status(200).send("horoscope details submited succesfully..")
     }).catch((err) => {
-        console.log(err)
         res.status(400).send("sorry some error occured")
     })
 })
@@ -650,7 +639,7 @@ router.post("/getpersonaldetailsupdate", async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, {
-            height: 1, weight: 1, bloodGroup: 1, education: 1, occupation: 1, salaryPA: 1, dob: 1,
+            age: 1, height: 1, weight: 1, bloodGroup: 1, education: 1, occupation: 1, salaryPA: 1, dob: 1,
             birth_time: 1, birth_place: 1, caste: 1, subCaste: 1, complexion: 1, disablity: 1,
             maritalStatus: 1, childrens_count: 1, addressLine1: 1, addressLine2: 1, country_name: 1, state_name: 1,
             city_name: 1, taluka: 1, district: 1, mother_tongue: 1, image1: 1, image2: 1, image3: 1
@@ -737,7 +726,7 @@ router.post("/updateregisterdetails", (req, res) => {
 router.post("/updatebasicdetails", async (req, res) => {
     const {
         //2.gettting basic info
-        email,
+        email, age,
         height, weight, bloodGroup, education, occupation, salaryPA, dob,
         birth_time, birth_place, caste, subCaste, complexion, disablity,
         maritalStatus, childrens_count, addressLine1, addressLine2, country_name, state_name,
@@ -752,7 +741,7 @@ router.post("/updatebasicdetails", async (req, res) => {
     UserModel.findOneAndUpdate({ email }, {
         $set: {
             //2.getting perosnal details
-            height, weight, bloodGroup, education,
+            height, weight, bloodGroup, education, age,
             occupation, mother_tongue, salaryPA, dob, birth_time, birth_place, caste,
             subCaste, complexion, disablity, maritalStatus, childrens_count, addressLine1,
             addressLine2, country_name, state_name, city_name, taluka, district,
@@ -887,7 +876,6 @@ router.post("/getsingleplan", async (req, res) => {
         res.status(200).send(data)
     }
     catch (e) {
-        console.log(e)
         res.status(400).send("sorry plan not found...")
     }
 })

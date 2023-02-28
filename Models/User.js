@@ -50,6 +50,10 @@ let usermodel = new mongoose.Schema({
     },
 
     //*************basic info start***********
+    age: {
+        type: Number,
+        default: 0
+    },
     height: {
         type: String,
         default: ""
