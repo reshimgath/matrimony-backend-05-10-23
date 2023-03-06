@@ -205,8 +205,7 @@ router.post("/resendotp", Authorizaton, (req, res) => {
 })
 
 //forgot password route for user
-router.post('/forgotpassword', async (req, res) => {
-    const { email } = req.body;
+router.post('/forgotpassword', Authorizaton, async (req, res) => {
     const password = generator.generate({
         length: 10,
         numbers: true
@@ -215,12 +214,12 @@ router.post('/forgotpassword', async (req, res) => {
     //generate secure hashed password
     const salt = await bcrypt.genSalt(10);
     const secpass = await bcrypt.hash(password, salt);
-    UserModel.findOneAndUpdate({ email }, {
+    UserModel.findOneAndUpdate({ email: req.email }, {
         $set: {
             secure_password: secpass
         }
     }).then((val) => {
-        forgotpassword(email, val.firstname, password).then((respo) => {
+        forgotpassword(req.email, val.firstname, password).then((respo) => {
             res.status(200).send('new password sent succesfully....')
         }).catch((err) => {
             res.status(400).send("sorry error while sending mail....")
@@ -438,7 +437,7 @@ router.post('/getbasicinfouser', Authorizaton, async (req, res) => {
         })
     }
     catch (e) {
-        res.statuys(400).send("sorry some errror occured..")
+        res.status(400).send("sorry some errror occured..")
     }
 
 })

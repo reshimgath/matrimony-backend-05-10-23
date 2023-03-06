@@ -63,7 +63,7 @@ router.post("/deleteadmin", adminAuthorizaton, (req, res) => {
 
 })
 //get all admin details
-router.get("/getalladmins", async (req, res) => {
+router.get("/getalladmins", adminAuthorizaton, async (req, res) => {
     try {
         const data = await AdminModel.find()
         res.status(200).send(data)
@@ -75,7 +75,7 @@ router.get("/getalladmins", async (req, res) => {
 })
 
 //get all users for users table
-router.get("/getallusersfortable", async (req, res) => {
+router.get("/getallusersfortable", cheackNormaladmin, async (req, res) => {
 
     try {
         UserModel.find({}, { email: 1, coins: 1, firstname: 1, rechargeDate: 1, rechargExpireDate: 1 }).then((val) => {
@@ -91,7 +91,7 @@ router.get("/getallusersfortable", async (req, res) => {
 })
 
 //admin can search a specific profile based on email or firstname
-router.post("/getspecificuser", async (req, res) => {
+router.post("/getspecificuser", cheackNormaladmin, async (req, res) => {
     const { name, email } = req.body
     try {
         // const result = await UserModel.find({ $or: [{ email: { $regex: email, $options: 'i' } }, { firstname: { $regex: name, $options: 'i' } }] }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 })
@@ -106,7 +106,7 @@ router.post("/getspecificuser", async (req, res) => {
 })
 
 //get unpaid users 
-router.get("/getunpaidusers", async (req, res) => {
+router.get("/getunpaidusers", cheackNormaladmin, async (req, res) => {
     try {
         const data = await UserModel.find({ coins: 0 }, { email: 1, firstname: 1, coins: 1, rechargeDate: 1, rechargExpireDate: 1 });
         res.status(200).send(data)
@@ -118,7 +118,7 @@ router.get("/getunpaidusers", async (req, res) => {
 })
 
 //get paid users 
-router.get("/getpaidusers", async (req, res) => {
+router.get("/getpaidusers", cheackNormaladmin, async (req, res) => {
     try {
         const data = await UserModel.find({ coins: { $gt: 0 } }, { email: 1, coins: 1, firstname: 1, rechargeDate: 1, rechargExpireDate: 1 });
         res.status(200).send(data)
@@ -140,7 +140,7 @@ router.post("/loginadmin", async (req, res) => {
             //compare the hashed passwrod and input password
             bcrypt.compare(password, admindata.password).then(async (correct) => {
                 if (correct) {
-                    res.status(200).send({ accesstoken: await getadminaccesstoken(admindata.email, admindata.root) })
+                    res.status(200).send({ accesstoken: await getadminaccesstoken(admindata.email, admindata.root, admindata.canrecharge) })
                 }
                 else {
                     res.status(401).send("incorrect password")
@@ -157,7 +157,7 @@ router.post("/loginadmin", async (req, res) => {
 })
 
 //admin can search a specific profile based on email or firstname
-router.post("/getallsingleprofiledetails", async (req, res) => {
+router.post("/getallsingleprofiledetails", cheackNormaladmin, async (req, res) => {
     const { email } = req.body
     try {
         const result = await UserModel.findOne({ email })
@@ -167,32 +167,20 @@ router.post("/getallsingleprofiledetails", async (req, res) => {
         res.status(400).send('sorry error found..')
     }
 
-}
-)
-
-//admin can create specific profile without emil authentication
-router.post("/createspecificuser", cheackNormaladmin, (req, res) => {
-    const { name, sirname, age } = req.body
-    res.send(name)
 })
 
 //admin can delete specific profile
 router.post("/deletespecificuser", adminAuthorizaton, (req, res) => {
     const { id } = req.body
-    UserModel.findOneAndDelete(id).then(() => {
+    UserModel.findByIdAndDelete(id).then(() => {
         res.status(200).send("profile deleted succesfully...")
     }).catch(() => {
         res.status(400).send("sorry profile not deleted")
     })
 })
 
-//admin can update specific profile
-router.post("/updatespecificuser", adminAuthorizaton, (req, res) => {
-    res.send("user updated succesfulyy.........")
-})
-
 //admin can recharge a profile
-router.post("/rechargeuser", async (req, res) => {
+router.post("/rechargeuser", cheackRecharge, async (req, res) => {
     const { firstname, email, coins, plan, days, details } = req.body
     const finalplan = JSON.parse(details)
 
@@ -219,7 +207,7 @@ router.post("/rechargeuser", async (req, res) => {
 })
 
 //api to get expired users from database
-router.get("/getexpiredusers", (req, res) => {
+router.get("/getexpiredusers", cheackNormaladmin, (req, res) => {
     UserModel.find({
         rechargExpireDate: {
             $lt: Date.now()
@@ -233,7 +221,7 @@ router.get("/getexpiredusers", (req, res) => {
 })
 
 //Create:success story
-router.post("/addstories", async (req, res) => {
+router.post("/addstories", cheackNormaladmin, async (req, res) => {
     const { image, date, men, women } = req.body;
     try {
         const responseCloud = await cloudinary.uploader.upload(image)
@@ -269,7 +257,7 @@ router.get("/getstories", async (req, res) => {
 })
 
 //Update: perticular story
-router.post("/updatestories", async (req, res) => {
+router.post("/updatestories", cheackNormaladmin, async (req, res) => {
     const { id, image, date, men, women } = req.body;
     let finalurl;
     try {
@@ -304,7 +292,7 @@ router.post("/updatestories", async (req, res) => {
 })
 
 //get story by id
-router.post("/getonestory", async (req, res) => {
+router.post("/getonestory", cheackNormaladmin, async (req, res) => {
     const { id } = req.body
     try {
         const data = await Stories.findById(id);
@@ -316,7 +304,7 @@ router.post("/getonestory", async (req, res) => {
 })
 
 //Delete:delete perticular story from database
-router.post("/deletestory", (req, res) => {
+router.post("/deletestory", cheackNormaladmin, (req, res) => {
     const { id } = req.body
     Stories.findByIdAndDelete(id).then(async (val1) => {
         const split1 = val1.image.split("/").pop()
@@ -332,8 +320,6 @@ router.post("/deletestory", (req, res) => {
         res.status(400).send("sorrry some error found in mongodb")
     })
 })
-
-
 
 //get customer queries 
 // router.post("/getqueries", (req, res) => {
@@ -365,7 +351,7 @@ router.post('/getqueries', (req, res) => {
     })
 })
 //send customer queries back
-router.get('/customerqueries', (req, res) => {
+router.get('/customerqueries', cheackNormaladmin, (req, res) => {
 
     Queries.find().then((val) => {
         res.status(200).send(val)
@@ -376,7 +362,7 @@ router.get('/customerqueries', (req, res) => {
 
 //********* normal admin can create users without email verification */
 //1.get register informaton
-router.post('/register', async (req, res) => {
+router.post('/register', cheackNormaladmin, async (req, res) => {
     const { firstname, email, mobile, password, lastname, gender } = req.body
 
     //generate secure hashed password
@@ -399,7 +385,7 @@ router.post('/register', async (req, res) => {
 })
 
 //2.gettting basic info
-router.post('/getbasicinfo', async (req, res) => {
+router.post('/getbasicinfo', cheackNormaladmin, async (req, res) => {
     const {
         age,
         image1,
@@ -474,7 +460,7 @@ router.post('/getbasicinfo', async (req, res) => {
 })
 
 //3.getting family details
-router.post("/getfamilydetails", (req, res) => {
+router.post("/getfamilydetails", cheackNormaladmin, (req, res) => {
     const {
         email,
         fathers_name,
@@ -509,7 +495,7 @@ router.post("/getfamilydetails", (req, res) => {
 
 });
 //3.partner prefrence
-router.post('/getpartnerprefrence', (req, res) => {
+router.post('/getpartnerprefrence', cheackNormaladmin, (req, res) => {
     const {
         email,
         education_pref,
@@ -540,8 +526,9 @@ router.post('/getpartnerprefrence', (req, res) => {
         res.status(400).send("sorry some error occured")
     })
 })
+
 //4.getting horoscope details (optional)
-router.post('/gethoroscopedetails', (req, res) => {
+router.post('/gethoroscopedetails', cheackNormaladmin, (req, res) => {
     const { email, rashi, nakshatra, mangal, charan, time_of_birth, place_of_birth, nadi, devak, gan } = req.body
 
     UserModel.findOneAndUpdate({ email }, {
@@ -556,7 +543,7 @@ router.post('/gethoroscopedetails', (req, res) => {
 })
 
 //Update User Profile 
-router.post('/updateuserprofile', async (req, res) => {
+router.post('/updateuserprofile', cheackNormaladmin, async (req, res) => {
     const {
 
         //1.get register details
@@ -624,7 +611,7 @@ router.post('/updateuserprofile', async (req, res) => {
 //updating user profile by breking all the forms
 
 //getting only register related details
-router.post("/getregisterdetailsupdate", async (req, res) => {
+router.post("/getregisterdetailsupdate", cheackNormaladmin, async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, { firstname: 1, email: 1, mobile: 1, lastname: 1, gender: 1, profile_completed: 1 })
@@ -635,7 +622,7 @@ router.post("/getregisterdetailsupdate", async (req, res) => {
     }
 })
 //getting only personal related details
-router.post("/getpersonaldetailsupdate", async (req, res) => {
+router.post("/getpersonaldetailsupdate", cheackNormaladmin, async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, {
@@ -651,7 +638,7 @@ router.post("/getpersonaldetailsupdate", async (req, res) => {
     }
 })
 //getting only family related details
-router.post("/getfamilydetailsupdate", async (req, res) => {
+router.post("/getfamilydetailsupdate", cheackNormaladmin, async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, {
@@ -666,7 +653,7 @@ router.post("/getfamilydetailsupdate", async (req, res) => {
     }
 })
 //getting only partner related details
-router.post("/getpartnerdetailsupdate", async (req, res) => {
+router.post("/getpartnerdetailsupdate", cheackNormaladmin, async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, {
@@ -680,7 +667,7 @@ router.post("/getpartnerdetailsupdate", async (req, res) => {
     }
 })
 //getting horoscope details
-router.post("/gethoroscopedetailsupdate", async (req, res) => {
+router.post("/gethoroscopedetailsupdate", cheackNormaladmin, async (req, res) => {
     const { email } = req.body;
     try {
         const data = await UserModel.findOne({ email }, {
@@ -695,7 +682,7 @@ router.post("/gethoroscopedetailsupdate", async (req, res) => {
 })
 
 //delted profiles from user side
-router.get('/getdeletedprofiles', async (req, res) => {
+router.get('/getdeletedprofiles', cheackNormaladmin, async (req, res) => {
     try {
         const data = await Deleted.find()
         res.status(200).send(data)
@@ -708,7 +695,7 @@ router.get('/getdeletedprofiles', async (req, res) => {
 //**************update details 
 //post only register related details
 //family details
-router.post("/updateregisterdetails", (req, res) => {
+router.post("/updateregisterdetails", cheackNormaladmin, (req, res) => {
     const {
         firstname, email, mobile, lastname, gender, } = req.body
     UserModel.findOneAndUpdate({ email }, {
@@ -723,7 +710,7 @@ router.post("/updateregisterdetails", (req, res) => {
 
 })
 //basic info
-router.post("/updatebasicdetails", async (req, res) => {
+router.post("/updatebasicdetails", cheackNormaladmin, async (req, res) => {
     const {
         //2.gettting basic info
         email, age,
@@ -756,7 +743,7 @@ router.post("/updatebasicdetails", async (req, res) => {
 })
 
 //family details
-router.post("/updatefamilydetails", (req, res) => {
+router.post("/updatefamilydetails", cheackNormaladmin, (req, res) => {
     const { email,
         fathers_name, fathers_occupation, mothers_name, mothers_occupation,
         bother_select, bother_status, sister_select, sister_status,
@@ -776,7 +763,7 @@ router.post("/updatefamilydetails", (req, res) => {
 })
 
 //partner prefrence
-router.post("/updatepartnerdetails", (req, res) => {
+router.post("/updatepartnerdetails", cheackNormaladmin, (req, res) => {
     const { email,
         education_pref, occupation_pref, salary_pref, complexion_pref,
         height_pref, religion_pref, caste_pref, state_pref, location_pref, } = req.body
@@ -795,7 +782,7 @@ router.post("/updatepartnerdetails", (req, res) => {
 })
 
 //horoscop details
-router.post("/updatehoroscopedetails", (req, res) => {
+router.post("/updatehoroscopedetails", cheackNormaladmin, (req, res) => {
     const { email,
         rashi, nakshatra, mangal, charan, time_of_birth,
         place_of_birth, nadi, devak, gan } = req.body
@@ -815,7 +802,7 @@ router.post("/updatehoroscopedetails", (req, res) => {
 
 //**************crud for plans *********************/
 //Create:
-router.post("/createplan", (req, res) => {
+router.post("/createplan", cheackNormaladmin, (req, res) => {
     const { price, expiresinMonths, mediator, services, contact_count } = req.body
     const newservices = JSON.parse(services);
     const planmodel = new Plans({
@@ -842,7 +829,7 @@ router.get('/getallplans', async (req, res) => {
 })
 
 //update
-router.post("/updateplan", (req, res) => {
+router.post("/updateplan", cheackNormaladmin, (req, res) => {
     const { id, price, expiresinMonths, mediator, services, contact_count } = req.body
     const newservices = JSON.parse(services);
     Plans.findByIdAndUpdate(id, {
@@ -859,7 +846,7 @@ router.post("/updateplan", (req, res) => {
 })
 
 //delete
-router.post("/deleteplan", (req, res) => {
+router.post("/deleteplan", cheackNormaladmin, (req, res) => {
     const { id } = req.body;
     Plans.findByIdAndDelete(id).then(() => {
         res.status(200).send("plan deleted succesfully..")
@@ -869,7 +856,7 @@ router.post("/deleteplan", (req, res) => {
 })
 
 //get single plan
-router.post("/getsingleplan", async (req, res) => {
+router.post("/getsingleplan", cheackNormaladmin, async (req, res) => {
     const { id } = req.body
     try {
         const data = await Plans.findById(id)
@@ -881,7 +868,7 @@ router.post("/getsingleplan", async (req, res) => {
 })
 
 //getplan names only
-router.get("/getplannamesonly", async (req, res) => {
+router.get("/getplannamesonly", cheackNormaladmin, async (req, res) => {
     try {
         const data = await Plans.find({}, { price: 1 })
         res.status(200).send(data)
@@ -893,7 +880,7 @@ router.get("/getplannamesonly", async (req, res) => {
 //**************crud for plans end *********************/
 
 //get recharges done by the admin
-router.get("/gerrechargelist", async (req, res) => {
+router.get("/gerrechargelist", cheackNormaladmin, async (req, res) => {
     try {
         const data = await Reacharges.find();
         res.status(200).send(data)

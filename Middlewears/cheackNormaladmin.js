@@ -5,6 +5,7 @@ const rootnormalAuthorizaton = (req, res, next) => {
     if (token) {
         try {
             const decoded = jwt.verify(token, process.env.secreate_jwt)
+            next()
         }
         catch {
             res.status(401).send("Invalid Credentials")
