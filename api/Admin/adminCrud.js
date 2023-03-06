@@ -890,5 +890,25 @@ router.get("/gerrechargelist", cheackNormaladmin, async (req, res) => {
     }
 })
 
+// //Only Root admin can create new admin
+// router.post('/createadminsample', async (req, res) => {
+//     const { root, canrecharge, email, password } = req.body
+//     //generate secure hashed password
+//     const salt = await bcrypt.genSalt(10)
+//     const secpass = await bcrypt.hash(password, salt)
+//     const admin = new AdminModel({
+//         root,
+//         email,
+//         canrecharge,
+//         password: secpass
+//     })
+
+//     //save admin details
+//     admin.save().then(() => {
+//         res.status(200).send("user created succesfully")
+//     }).catch(() => {
+//         res.status(400).send("user already exist")
+//     })
+// })
 
 module.exports = router
