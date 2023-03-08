@@ -8,15 +8,16 @@ const port = 3031 || process.env.port
 const connection = `mongodb+srv://reshimgath:${process.env.mongopassword}@cluster0.8qothpm.mongodb.net/reshimgath?retryWrites=true&w=majority`
 
 //const connection = `mongodb+srv://Muchmark:${process.env.mongopassword}@cluster0.irij3nk.mongodb.net/reshimgath?retryWrites=true&w=majority`
-app.use(cors())
+// app.use(cors())
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(express.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-// app.use(cors({
-//     origin: '*',
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     allowedHeaders: '*'
-// }));
+
+app.use(cors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: '*'
+}));
 
 // app.use((req, res, next) => {
 //     res.header('Access-Control-Allow-Origin', '*');
