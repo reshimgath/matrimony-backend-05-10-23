@@ -47,6 +47,7 @@ app.get("/", (req, res) => {
     res.status(200).send("hello user")
 })
 
+
 //add the routers
 app.use('/auth', authUser)
 app.use('/admincrud', admincrud)
