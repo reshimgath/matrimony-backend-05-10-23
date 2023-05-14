@@ -1,3 +1,4 @@
+// @ts-nocheck 
 const express = require("express");
 const Reacharges = require("../../Models/Reacharges");
 const router = express.Router();

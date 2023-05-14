@@ -1,10 +1,11 @@
+// @ts-nocheck 
 const express = require('express')
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors')
 require('dotenv').config();
 const app = express()
-const port = 3031 || process.env.port
+const port = 3030 || process.env.port
 const connection = `mongodb+srv://reshimgath:${process.env.mongopassword}@cluster0.8qothpm.mongodb.net/reshimgath?retryWrites=true&w=majority`
 
 //const connection = `mongodb+srv://Muchmark:${process.env.mongopassword}@cluster0.irij3nk.mongodb.net/reshimgath?retryWrites=true&w=majority`
@@ -13,6 +14,7 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(express.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+//console.log(process.env.mongopassword)
 // app.use(cors({
 //     origin: '*',
 //     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -40,7 +42,8 @@ const admincrud = require("./api/Admin/adminCrud")
 //connect to mongodb
 mongoose.set('strictQuery', true);
 mongoose.connect(connection).then((res) => {
-}).catch(() => {
+}).catch((err) => {
+   // console.log(err)
 })
 
 app.get("/", (req, res) => {

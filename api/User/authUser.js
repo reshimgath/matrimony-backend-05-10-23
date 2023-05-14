@@ -1,3 +1,4 @@
+// @ts-nocheck 
 const express = require("express")
 const router = express.Router();
 const otpGenerator = require('otp-generator')
@@ -205,7 +206,8 @@ router.post("/resendotp", Authorizaton, (req, res) => {
 })
 
 //forgot password route for user
-router.post('/forgotpassword', Authorizaton, async (req, res) => {
+router.post('/forgotpassword', async (req, res) => {
+    console.log(req.body.email)
     const password = generator.generate({
         length: 10,
         numbers: true
@@ -214,18 +216,19 @@ router.post('/forgotpassword', Authorizaton, async (req, res) => {
     //generate secure hashed password
     const salt = await bcrypt.genSalt(10);
     const secpass = await bcrypt.hash(password, salt);
-    UserModel.findOneAndUpdate({ email: req.email }, {
+    UserModel.findOneAndUpdate({ email: req.body.email }, {
         $set: {
             secure_password: secpass
         }
     }).then((val) => {
-        forgotpassword(req.email, val.firstname, password).then((respo) => {
+        console.log(val)
+        forgotpassword(email=req.email, firstname=val.firstname, password).then((respo) => {
             res.status(200).send('new password sent succesfully....')
         }).catch((err) => {
             res.status(400).send("sorry error while sending mail....")
         })
     }).catch((e) => {
-
+        console.log(e)
         res.status(400).send("internal server error......")
     })
 
@@ -319,6 +322,7 @@ router.post("/normalsearch", async (req, res) => {
         res.status(200).send(result)
     }
     catch (e) {
+        console.log(e)
         res.status(400).send('sorry errror found..')
     }
 })
