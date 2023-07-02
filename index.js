@@ -6,8 +6,8 @@ const cors = require('cors')
 require('dotenv').config();
 const app = express()
 const port = 3030 || process.env.port
-const connection = `mongodb+srv://reshimgath:${process.env.mongopassword}@cluster0.8qothpm.mongodb.net/reshimgath?retryWrites=true&w=majority`
-
+//const connection = `mongodb+srv://reshimgath:${process.env.mongopassword}@cluster0.8qothpm.mongodb.net/reshimgath?retryWrites=true&w=majority`
+const connection = `mongodb+srv://reshimgathmatrimony001:${process.env.mongopassword}@cluster0.z0pbii9.mongodb.net/reshimgathDB?retryWrites=true&w=majority`
 //const connection = `mongodb+srv://Muchmark:${process.env.mongopassword}@cluster0.irij3nk.mongodb.net/reshimgath?retryWrites=true&w=majority`
 app.use(cors())
 app.use(bodyParser.json({ limit: '50mb' }))
