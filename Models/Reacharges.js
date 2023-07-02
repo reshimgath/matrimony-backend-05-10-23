@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const rechargesScheama = mongoose.Schema({
+const rechargesScheama = new mongoose.Schema({
     email: {
         type: String,
         require: true
