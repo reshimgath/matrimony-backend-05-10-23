@@ -1,3 +1,4 @@
+// @ts-nocheck 
 const jwt = require("jsonwebtoken")
 require('dotenv').config()
 const rootadminAuthorizaton = (req, res, next) => {
@@ -5,6 +6,7 @@ const rootadminAuthorizaton = (req, res, next) => {
     if (token) {
         try {
             const decoded = jwt.verify(token, process.env.secreate_jwt)
+            req.email = decoded.email
             if (decoded.root) {
                 next()
             }

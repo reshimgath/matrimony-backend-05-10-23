@@ -15,6 +15,7 @@ const Stories = require("../../Models/Stories");
 const Queries = require("../../Models/Queries");
 const Plans = require("../../Models/Plans")
 const RechargeEmail = require("../../Functions/rechargeConfirm")
+const ProfileLogs = require("../../Models/Profilelogs")
 //const getAccesstoken = require("../../Functions/getaccessToken");
 //const getDatatoken = require("../../Functions/getDatatoken");
 
@@ -377,7 +378,12 @@ router.post('/register', cheackNormaladmin, async (req, res) => {
     UserModel.create({
         firstname, email, mobile, secure_password: secpass, lastname, gender, verified: true,
         profile_completed: 20
-    }).then((val1) => {
+    }).then(async (val1) => {
+        await ProfileLogs.create({
+            createdProfile: email,
+            createdBy: req.email,
+        })
+
         res.status(200).send("registartion details submited succesfully..")
     }).catch((e) => {
         res.status(400).send("sorry user already exist..")
@@ -911,5 +917,32 @@ router.get("/gerrechargelist", cheackNormaladmin, async (req, res) => {
 //         res.status(400).send("user already exist")
 //     })
 // })
+
+
+// get all logs 
+router.get("/getprofilelogs", async (req, res) => {
+    try {
+        const data = await ProfileLogs.find();
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errror occured...")
+    }
+})
+
+
+// get all logs 
+router.get("/getsigleprofilelog", async (req, res) => {
+
+    try {
+        const data = await ProfileLogs.find({
+            createdProfile: req.query.email
+        });
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send("sorrry some errror occured...")
+    }
+})
 
 module.exports = router

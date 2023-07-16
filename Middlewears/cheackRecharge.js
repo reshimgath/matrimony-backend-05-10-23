@@ -1,3 +1,4 @@
+// @ts-nocheck 
 const jwt = require("jsonwebtoken")
 require('dotenv').config()
 const rootnormalAuthorizaton = (req, res, next) => {

@@ -10,7 +10,7 @@ const UserModel = require("../../Models/User");
 const OTP = require("../../Models/OTP");
 const DeleteOtpModel = require("../../Models/DeleteOtp")
 const Deleted = require("../../Models/Deleted");
-
+const ProfileLogs = require("../../Models/Profilelogs")
 //functions that sends emails to user
 const mailSender = require("../../Functions/mailsender");
 const deleteConfirm = require("../../Functions/deleteConfirm");
@@ -53,6 +53,10 @@ router.post('/register', async (req, res) => {
         Myotp.save().then(() => {
             //send mail
             mailSender(email, otp, firstname).then(async () => {
+                await ProfileLogs.create({
+                    createdProfile: email,
+                    createdBy: email,
+                })
                 res.status(200).send({ accesstoken: await getAccesstoken(val1.firstname, val1.email, val1.mobile), datatoken: await getDatatoken(val1.firstname, val1.email, val1.mobile, val1.gender, val1.verified, val1.profile_completed, val1.coins), message: "otp sent succesfulyy" })
             }).catch((err) => {
 
@@ -222,7 +226,7 @@ router.post('/forgotpassword', async (req, res) => {
         }
     }).then((val) => {
         console.log(val)
-        forgotpassword(email=req.email, firstname=val.firstname, password).then((respo) => {
+        forgotpassword(email = req.email, firstname = val.firstname, password).then((respo) => {
             res.status(200).send('new password sent succesfully....')
         }).catch((err) => {
             res.status(400).send("sorry error while sending mail....")
@@ -659,4 +663,5 @@ router.get('/getsingleprofileofuser', Authorizaton, async (req, res) => {
     }
 })
 module.exports = router
+
 
