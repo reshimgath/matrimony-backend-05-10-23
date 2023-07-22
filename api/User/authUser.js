@@ -24,6 +24,7 @@ const getAccesstoken = require("../../Functions/getaccessToken");
 //middlewears 
 const Authorizaton = require("../../Middlewears/authrization");
 const User = require("../../Models/User");
+const PartnerPrefrence = require("../../Models/PartnerPrefrence");
 
 //cloudinary setup
 var cloudinary = require('cloudinary').v2;
@@ -620,9 +621,10 @@ router.post('/deleteprofile', Authorizaton, async (req, res) => {
                         mobile, email: req.email, gender, reason
                     })
                     //save the deleted informataion
-                    deleted.save().then(() => {
+                    deleted.save().then(async () => {
                         //delete the info from database
-                        UserModel.findOneAndDelete({ email: req.email }).then(() => {
+                        UserModel.findOneAndDelete({ email: req.email }).then(async () => {
+                            await PartnerPrefrence.findOneAndDelete({ email: req.email })
                             res.status(200).send("deleted succesfully..")
                         }).catch(() => {
                             res.status(400).send("sorrry errror while deleting profile")

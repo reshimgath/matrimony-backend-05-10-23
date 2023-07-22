@@ -15,7 +15,8 @@ const Stories = require("../../Models/Stories");
 const Queries = require("../../Models/Queries");
 const Plans = require("../../Models/Plans")
 const RechargeEmail = require("../../Functions/rechargeConfirm")
-const ProfileLogs = require("../../Models/Profilelogs")
+const ProfileLogs = require("../../Models/Profilelogs");
+const PartnerPrefrence = require("../../Models/PartnerPrefrence");
 //const getAccesstoken = require("../../Functions/getaccessToken");
 //const getDatatoken = require("../../Functions/getDatatoken");
 
@@ -945,4 +946,162 @@ router.get("/getsigleprofilelog", async (req, res) => {
     }
 })
 
+//3.partner prefrence
+router.post('/getpartnerprefrencenewadd', cheackNormaladmin, (req, res) => {
+    const {
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref } = req.body;
+    PartnerPrefrence.create({
+        email: req.email,
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref
+    }).then(async (val1) => {
+        await UserModel.findOneAndUpdate({ email: req.email }, {
+            $set: {
+                profile_completed: 100
+
+            }
+        })
+        res.status(200).send("partner prefrence details added succesfully...")
+    }).catch((err) => {
+        res.status(400).send(err)
+    })
+})
+
+// Get partner prefrence
+router.get("/getsinglepartnerprefrencenew", async (req, res) => {
+    try {
+        const data = await PartnerPrefrence.findOne(req.query.email)
+        res.status(200).send(data)
+    }
+    catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+//3.partner prefrence update
+router.post('/getpartnerprefrenceupdatenew', cheackNormaladmin, (req, res) => {
+    const {
+        id,
+        education_pref,
+        occupation_pref,
+        salary_pref,
+        complexion_pref,
+        height_pref,
+        religion_pref,
+        caste_pref,
+        state_pref,
+        location_pref } = req.body
+    PartnerPrefrence.findByIdAndUpdate({ id }, {
+        $set: {
+            education_pref,
+            occupation_pref,
+            salary_pref,
+            complexion_pref,
+            height_pref,
+            religion_pref,
+            caste_pref,
+            state_pref,
+            location_pref,
+        }
+    }, { new: true }).then(async (val1) => {
+        res.status(200).send("partner prefrence details added succesfully...")
+    }).catch((err) => {
+        res.status(400).send("sorry some error occured")
+    })
+})
+
+// //Get partner prefrence
+// router.get("/sampledatanormalization", async (req, res) => {
+//     try {
+//         const data = await UserModel.find({}, {
+//             email: 1,
+//             education_pref: 1,
+//             occupation_pref: 1,
+//             salary_pref: 1,
+//             complexion_pref: 1,
+//             height_pref: 1,
+//             religion_pref: 1,
+//             caste_pref: 1,
+//             state_pref: 1,
+//             location_pref: 1
+//         });
+
+//         data.map(async (val, idx) => {
+//             // create the 
+//             const data1 = await PartnerPrefrence.create({
+//                 email: val.email,
+//             })
+//             // Retrieve document
+//             const doc = await PartnerPrefrence.findById({ _id: data1._id })
+
+//             // Append items to `friends`
+//             if (val.education_pref !== "") {
+//                 doc.education_pref.push(val.education_pref);
+//             }
+
+//             if (val.occupation_pref !== "") {
+//                 doc.occupation_pref.push(val.occupation_pref);
+//             }
+
+//             if (val.salary_pref !== "") {
+//                 doc.salary_pref.push(val.salary_pref);
+//             }
+
+//             if (val.complexion_pref !== "") {
+//                 doc.complexion_pref.push(val.complexion_pref);
+//             }
+
+//             if (val.height_pref !== "") {
+//                 doc.height_pref.push(val.height_pref);
+//             }
+
+//             if (val.religion_pref !== "") {
+//                 doc.religion_pref.push(val.religion_pref);
+//             }
+
+//             if (val.caste_pref !== "") {
+//                 doc.caste_pref.push(val.caste_pref);
+//             }
+//             if (val.state_pref !== "") {
+//                 doc.state_pref.push(val.state_pref);
+//             }
+//             if (val.location_pref !== "") {
+//                 doc.location_pref.push(val.location_pref);
+//             }
+//             // Update document
+//             await doc.save();
+//         })
+//         res.status(200).send("all records added")
+//     }
+//     catch (e) {
+//         res.status(400).send(e)
+//     }
+// })
+//Get partner prefrence
+// router.get("/sampledatanormalization", async (req, res) => {
+//     try {
+//         const data = await PartnerPrefrence.find();
+//         res.status(200).send({
+//             data
+//         })
+//     }
+//     catch (e) {
+//         res.status(400).send(e)
+//     }
+// })
 module.exports = router
