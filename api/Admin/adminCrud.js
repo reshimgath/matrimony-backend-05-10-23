@@ -984,11 +984,13 @@ router.post('/getpartnerprefrencenewadd', cheackNormaladmin, (req, res) => {
 
 // Get partner prefrence
 router.get("/getsinglepartnerprefrencenew", async (req, res) => {
+
     try {
-        const data = await PartnerPrefrence.findOne(req.query.email)
+        const data = await PartnerPrefrence.findOne({email:req.query.email})
         res.status(200).send(data)
     }
     catch (e) {
+
         res.status(400).send(e)
     }
 })
