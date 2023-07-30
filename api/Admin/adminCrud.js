@@ -949,6 +949,7 @@ router.get("/getsigleprofilelog", async (req, res) => {
 //3.partner prefrence
 router.post('/getpartnerprefrencenewadd', cheackNormaladmin, (req, res) => {
     const {
+        email,
         education_pref,
         occupation_pref,
         salary_pref,
@@ -959,7 +960,7 @@ router.post('/getpartnerprefrencenewadd', cheackNormaladmin, (req, res) => {
         state_pref,
         location_pref } = req.body;
     PartnerPrefrence.create({
-        email: req.email,
+        email: email,
         education_pref,
         occupation_pref,
         salary_pref,
@@ -970,10 +971,9 @@ router.post('/getpartnerprefrencenewadd', cheackNormaladmin, (req, res) => {
         state_pref,
         location_pref
     }).then(async (val1) => {
-        await UserModel.findOneAndUpdate({ email: req.email }, {
+        await UserModel.findOneAndUpdate({ email: email }, {
             $set: {
                 profile_completed: 100
-
             }
         })
         res.status(200).send("partner prefrence details added succesfully...")
@@ -996,7 +996,7 @@ router.get("/getsinglepartnerprefrencenew", async (req, res) => {
 //3.partner prefrence update
 router.post('/getpartnerprefrenceupdatenew', cheackNormaladmin, (req, res) => {
     const {
-        id,
+        email,
         education_pref,
         occupation_pref,
         salary_pref,
@@ -1006,7 +1006,7 @@ router.post('/getpartnerprefrenceupdatenew', cheackNormaladmin, (req, res) => {
         caste_pref,
         state_pref,
         location_pref } = req.body
-    PartnerPrefrence.findByIdAndUpdate({ id }, {
+    PartnerPrefrence.findOneAndUpdate({ email }, {
         $set: {
             education_pref,
             occupation_pref,
