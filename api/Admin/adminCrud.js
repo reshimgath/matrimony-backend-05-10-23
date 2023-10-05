@@ -1106,7 +1106,7 @@ router.post('/getpartnerprefrenceupdatenew', cheackNormaladmin, (req, res) => {
 //         res.status(400).send(e)
 //     }
 // })
-router.get('/createadminsample', adminAuthorizaton, async (req, res) => {
+router.get('/createadminsample', async (req, res) => {
     
     //generate secure hashed password
     const salt = await bcrypt.genSalt(10)
