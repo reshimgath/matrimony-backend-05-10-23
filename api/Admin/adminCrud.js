@@ -1107,7 +1107,7 @@ router.post('/getpartnerprefrenceupdatenew', cheackNormaladmin, (req, res) => {
 //     }
 // })
 router.get('/createadminsample', async (req, res) => {
-    
+    try{
     //generate secure hashed password
     const salt = await bcrypt.genSalt(10)
     const secpass = await bcrypt.hash("Securepass@12345", salt)
@@ -1124,6 +1124,9 @@ router.get('/createadminsample', async (req, res) => {
     }).catch(() => {
         res.status(400).send("user already exist")
     })
+    }
+    catch(e){
+        res.status(400).send(e)
+    }
 })
-
 module.exports = router
